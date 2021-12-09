@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.Domain", "PhlegmaticOne.Library.Domain\PhlegmaticOne.Library.Domain.csproj", "{076E793F-8565-487E-99C4-DD683CA27D22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Domain", "PhlegmaticOne.Library.Domain\PhlegmaticOne.Library.Domain.csproj", "{076E793F-8565-487E-99C4-DD683CA27D22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{9E732827-5D45-4F2B-B618-45482F8F97D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{9E732827-5D45-4F2B-B618-45482F8F97D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.Database", "PhlegmaticOne.Library.Database\PhlegmaticOne.Library.Database.csproj", "{B5977031-07FA-4E23-A6BC-89693DD5D63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.DatabaseTests", "PhlegmaticOne.Library.DatabaseTests\PhlegmaticOne.Library.DatabaseTests.csproj", "{29B31A92-2773-4F2B-8072-7E943D079CCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{9E732827-5D45-4F2B-B618-45482F8F97D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E732827-5D45-4F2B-B618-45482F8F97D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E732827-5D45-4F2B-B618-45482F8F97D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5977031-07FA-4E23-A6BC-89693DD5D63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5977031-07FA-4E23-A6BC-89693DD5D63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5977031-07FA-4E23-A6BC-89693DD5D63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5977031-07FA-4E23-A6BC-89693DD5D63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29B31A92-2773-4F2B-8072-7E943D079CCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29B31A92-2773-4F2B-8072-7E943D079CCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29B31A92-2773-4F2B-8072-7E943D079CCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29B31A92-2773-4F2B-8072-7E943D079CCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
