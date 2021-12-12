@@ -5,7 +5,7 @@ public class Book : DomainModelBase, IEquatable<Book>
     public string Name { get; set; }
     public int GenreId { get; set; }
     public Genre Genre { get; set; }
-    public ICollection<Author> Authors { get; set; }
+    public ICollection<Author> Authors { get; set; } = new List<Author>();
     public override string ToString() => Name;
 
     public bool Equals(Book? other)

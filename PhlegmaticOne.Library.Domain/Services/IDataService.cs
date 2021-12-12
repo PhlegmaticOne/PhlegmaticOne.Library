@@ -4,10 +4,10 @@ namespace PhlegmaticOne.Library.Domain.Services;
 
 public interface IDataService
 {
-    Task<bool> AddAsync(DomainModelBase entity);
-    Task<bool> DeleteAsync(int id);
-    Task<bool> UpdateAsync(int id, DomainModelBase newEntity);
-    Task<DomainModelBase> GetLazyAsync(int id);
-    Task<DomainModelBase> GetFullAsync(int id);
-    Task<int> GetIdOfExisting(DomainModelBase entity);
+    Task<int> AddAsync<TEntity>(TEntity entity) where TEntity: DomainModelBase;
+    Task<DeleteCommandResult<TEntity>> DeleteAsync<TEntity>(int id) where TEntity: DomainModelBase;
+    Task<UpdateCommandResult<TEntity>> UpdateAsync<TEntity>(int id, TEntity newEntity) where TEntity: DomainModelBase;
+    Task<GetCommandResult<TEntity>> GetLazyAsync<TEntity>(int id) where TEntity: DomainModelBase;
+    Task<GetCommandResult<TEntity>> GetFullAsync<TEntity>(int id) where TEntity: DomainModelBase;
+    Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity: DomainModelBase;
 }

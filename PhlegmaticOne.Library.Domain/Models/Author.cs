@@ -4,7 +4,7 @@ public class Author : DomainModelBase, IEquatable<Author>
 {
     public string Name { get; set; }
     public string Surname { get; set; }
-    public ICollection<Book> Books { get; set; }
+    public ICollection<Book> Books { get; set; } = new List<Book>();
     public override string ToString() => $"№{Id}. {Name} {Surname}";
 
     public bool Equals(Author? other)

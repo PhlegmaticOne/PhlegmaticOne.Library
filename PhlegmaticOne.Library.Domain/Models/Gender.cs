@@ -3,6 +3,7 @@
 public class Gender : DomainModelBase, IEquatable<Gender>
 {
     public string Name { get; set; }
+
     public override string ToString() => Name;
 
     public bool Equals(Gender? other)

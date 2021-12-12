@@ -5,6 +5,12 @@ public class State : DomainModelBase, IEquatable<State>
     public string Name { get; set; }
     public override string ToString() => Name;
 
+    public bool IsRepairNeeded => Name switch
+    {
+        "Excellent" or "Good" or "Satisfactorily" => false,
+        "Bad" or "Terrible" => true,
+        _ => throw new InvalidOperationException()
+    };
     public bool Equals(State? other)
     {
         if (ReferenceEquals(null, other)) return false;
