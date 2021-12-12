@@ -12,7 +12,7 @@ public class CompositeSqlDbCrud : SqlDbCrud
                               DataContextConfigurationBase<AdoDataService> configuration) :
                               base(connection, expressionProvider, configuration) { }
 
-    public override async Task<int> AddAsync<TEntity>(TEntity entity)
+    public override async Task<int?> AddAsync<TEntity>(TEntity entity)
     {
         var id = await new ToAnotherSqlDbCrud(Connection, ExpressionProvider, Configuration).AddAsync(entity);
         return await new ToManySqLDbCrud(Connection, ExpressionProvider, Configuration).AddInTempTable(entity, id);

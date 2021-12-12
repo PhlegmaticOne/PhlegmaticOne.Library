@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +22,20 @@ public class AdoDataServiceTests
         new() { Name = "Male" },
         new() { Name = "Female" },
         new() { Name = "Other" }
+    };
+
+    private static readonly List<Genre> _genres = new()
+    {
+        new() { Name = "Romance" },
+        new() { Name = "Detective" },
+        new() { Name = "Thriller" },
+        new() { Name = "Adventure" },
+        new() { Name = "Comedy" },
+        new() { Name = "Realism" },
+        new() { Name = "Fantasy" },
+        new() { Name = "Folklore" },
+        new() { Name = "Religion" },
+        new() { Name = "Novel" }
     };
 
     private static readonly List<State> _states = new()
@@ -75,19 +90,7 @@ public class AdoDataServiceTests
             Gender = _genders[1]
         }
     };
-    private static readonly List<Genre> _genres = new()
-    {
-        new() { Name = "Detective" },
-        new() { Name = "Thriller" },
-        new() { Name = "Adventure" },
-        new() { Name = "Romance" },
-        new() { Name = "Comedy" },
-        new() { Name = "Realism" },
-        new() { Name = "Fantasy" },
-        new() { Name = "Folklore" },
-        new() { Name = "Religion" },
-        new() { Name = "Novel" }
-    };
+
 
     private static readonly List<Author> _authors = new()
     {
@@ -115,6 +118,16 @@ public class AdoDataServiceTests
         {
             Name = "Jack",
             Surname = "London"
+        },
+        new()
+        {
+            Name = "Arcadiy",
+            Surname = "Strugacky"
+        },
+        new()
+        {
+            Name = "Boris",
+            Surname = "Strugacky"
         }
     };
 
@@ -122,39 +135,53 @@ public class AdoDataServiceTests
     {
         new()
         {
-            Name = "War and Peace",
-            Genre = _genres.First(r => r.Name == "Romance")
+            Name = "Captain`s daughter",
+            Genre = _genres.First(r => r.Name == "Romance"),
+            Authors = new List<Author>() { _authors.First(a => a.Surname == "Pushkin") }
         },
         new()
         {
-            Name = "Captain's daughter",
-            Genre = _genres.First(r => r.Name == "Romance")
+            Name = "War and Peace",
+            Genre = _genres.First(r => r.Name == "Romance"),
+            Authors = new List<Author>() { _authors.First(a => a.Surname == "Tolstoy") }
         },
         new()
         {
             Name = "Hero of our time",
-            Genre = _genres.First(r => r.Name == "Romance")
+            Genre = _genres.First(r => r.Name == "Romance"),
+            Authors = new List<Author>() { _authors.First(a => a.Surname == "Lermontov") }
         },
         new()
         {
             Name = "Crime and Punishment",
-            Genre = _genres.First(r => r.Name == "Thriller")
+            Genre = _genres.First(r => r.Name == "Thriller"),
+            Authors = new List<Author>() { _authors.First(a => a.Surname == "Dostoevsky") }
         },
         new()
         {
             Name = "The Sea Wolf",
-            Genre = _genres.First(r => r.Name == "Adventure")
+            Genre = _genres.First(r => r.Name == "Adventure"),
+            Authors = new List<Author>() { _authors.First(a => a.Surname == "London") }
+        },
+        new()
+        {
+            Name = "Roadside Picnic",
+            Genre = _genres.First(r => r.Name == "Fantasy"),
+            Authors = _authors.Where(a => a.Surname == "Strugacky").ToList()
         },
     };
 
     private static readonly List<Lending> _lendings = new()
     {
-        new()
-        {
-            Abonent = _abonents[0],
-            Book = _books[0],
-            LendingDate = DateTime.Parse("11.11.2021")
-        },
+        //new()
+        //{
+        //    Abonent = _abonents[0],
+        //    Book = _books[0],
+        //    LendingDate = DateTime.Parse("11.11.2021"),
+        //    IsReturned = true,
+        //    ReturnDate = DateTime.Parse("20.11.2021"),
+        //    State = _states[0]
+        //},
         new()
         {
             Abonent = _abonents[1],
@@ -188,15 +215,25 @@ public class AdoDataServiceTests
     [TestMethod()]
     public async Task AddAsyncTest()
     {
-        var book = _books[1];
-        book.Authors.Add(_authors.First());
         var serverName = @"(localdb)\MSSQLLocalDB";
         var dataBaseName = @"LibraryDataBase";
         var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(getter);
-        await context.AddAsync(_authors.First());
-        await context.AddAsync(book.Genre);
-        await context.AddAsync(book);
+        //await AddAll(_genders, context);
+        //await AddAll(_genres, context);
+        //await AddAll(_states, context);
+        //await AddAll(_abonents, context);
+        //await AddAll(_authors, context);
+        //await AddAll(_books, context);
+        await AddAll(_lendings, context);
+    }
+
+    private async Task AddAll<TEntity>(IEnumerable<TEntity> entities, AdoDataService service) where TEntity: DomainModelBase
+    {
+        foreach (var entity in entities)
+        {
+            await service.AddAsync(entity);
+        }
     }
     [TestMethod()]
     public async Task GetIdOfExistingTest()

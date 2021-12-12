@@ -20,7 +20,7 @@ public abstract class SqlDbCrud : DbCrudBase
         ExpressionProvider = expressionProvider;
         Configuration = configuration;
     }
-    public override async Task<int> AddAsync<TEntity>(TEntity entity)
+    public override async Task<int?> AddAsync<TEntity>(TEntity entity)
     {
         return await Task.Factory.StartNew(() => AddConfiguredEntity(entity))
                                  .ContinueWith(_ => GetLastIdOf<TEntity>()).Result;
@@ -59,12 +59,13 @@ public abstract class SqlDbCrud : DbCrudBase
         new SqlCommandBuilder(adapter);
         adapter.Update(dataSet);
     }
-    protected async Task<int> GetLastIdOf<TEntity>() where TEntity: DomainModelBase =>
+    protected async Task<int?> GetLastIdOf<TEntity>() where TEntity: DomainModelBase =>
         await ExecuteSimpleReadingCommand(SqlCommandsPatterns.GetLastIdFor<TEntity>());
-    protected async Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity : DomainModelBase? => 
+    protected async Task<int?> GetIdOfExisting(DomainModelBase entity) => 
         await ExecuteSimpleReadingCommand(ExpressionProvider.SelectIdExpression(entity));
-    private async Task<int> ExecuteSimpleReadingCommand(string commandText)
+    private async Task<int?> ExecuteSimpleReadingCommand(string? commandText)
     {
+        if (commandText is null) return null;
         await using var command = new SqlCommand(commandText, Connection);
         await using var reader = await command.ExecuteReaderAsync();
         await reader.ReadAsync();

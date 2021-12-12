@@ -5,7 +5,7 @@ public class State : DomainModelBase, IEquatable<State>
     public string Name { get; set; }
     public override string ToString() => Name;
 
-    public bool IsRepairNeeded => Name switch
+    public bool IsRepairNeeded() => Name switch
     {
         "Excellent" or "Good" or "Satisfactorily" => false,
         "Bad" or "Terrible" => true,

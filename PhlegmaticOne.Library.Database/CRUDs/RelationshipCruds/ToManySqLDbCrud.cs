@@ -15,7 +15,7 @@ public class ToManySqLDbCrud : SqlDbCrud
                             DataContextConfigurationBase<AdoDataService> configuration) :
                             base(connection, expressionProvider, configuration) { }
 
-    public override async Task<int> AddAsync<TEntity>(TEntity entity)
+    public override async Task<int?> AddAsync<TEntity>(TEntity entity)
     {
         switch (Configuration.ManyToManyAddingType)
         {
@@ -26,14 +26,14 @@ public class ToManySqLDbCrud : SqlDbCrud
                 {
                     TEntity => await Task.Factory.StartNew(async () => await base.AddAsync(entity))
                                                  .ContinueWith(async (configuredEntity) =>
-                                                               await AddInTempTable(entity, configuredEntity.Result.Result)).Result,
+                                                               await AddInTempTable(entity, configuredEntity.Result.Result.Value)).Result,
                     _ => await base.AddAsync(entity)
                 };
             }
         }
     }
 
-    public async Task<int> AddInTempTable<TEntity>(TEntity entity, int id) where TEntity: DomainModelBase
+    public async Task<int?> AddInTempTable<TEntity>(TEntity entity, int? id) where TEntity: DomainModelBase
     {
         var relatedObjects = typeof(TEntity).GetProperties()
             .First(p => p.PropertyType.IsAssignableTo(typeof(IEnumerable<DomainModelBase>)))

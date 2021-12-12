@@ -16,11 +16,11 @@ public static class SqlCommandExtensions
         propertyInfos.Where(p =>
             p.PropertyType.IsAssignableTo(typeof(T)) == false &&
             p.PropertyType.IsAssignableTo(typeof(IEnumerable<T>)) == false).Where(additionalPredicate);
-    public static DataRow ParametrizeWith(this DataRow dataRow, IDictionary<string, object> properties)
+    public static DataRow ParametrizeWith(this DataRow dataRow, IDictionary<string, object?> properties)
     {
         foreach (var property in properties)
         {
-            dataRow[property.Key] = property.Value;
+            dataRow[property.Key] = property.Value ?? DBNull.Value;
         }
         return dataRow;
     }

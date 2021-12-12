@@ -14,7 +14,7 @@ public class ToAnotherSqlDbCrud : SqlDbCrud
     public ToAnotherSqlDbCrud(SqlConnection connection, ISqlCommandExpressionProvider expressionProvider,
         DataContextConfigurationBase<AdoDataService> configuration) :
         base(connection, expressionProvider, configuration) { }
-    public override async Task<int> AddAsync<TEntity>(TEntity entity)
+    public override async Task<int?> AddAsync<TEntity>(TEntity entity)
     {
         switch (Configuration.OneToManyAddingType)
         {

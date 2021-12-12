@@ -20,7 +20,7 @@ public class AdoDataService : IDataService, IAsyncDisposable
         await instance._connection.OpenAsync();
         return instance;
     }
-    public async Task<int> AddAsync<TEntity>(TEntity entity) where TEntity: DomainModelBase => 
+    public async Task<int?> AddAsync<TEntity>(TEntity entity) where TEntity: DomainModelBase => 
         await _sqlDbCrudsFactory.SqlCrudFor<TEntity>(_connection).AddAsync(entity);
     public Task<DeleteCommandResult<TEntity>> DeleteAsync<TEntity>(int id) where TEntity : DomainModelBase
     {
@@ -80,6 +80,22 @@ public class AdoDataService : IDataService, IAsyncDisposable
         }
 
         return totalDeleted;
+    }
+
+    public async Task<IEnumerable<object>> ExecuteCommand(string commandText)
+    {
+        var result = new List<object>();
+        await using var command = new SqlCommand(commandText, _connection);
+        await using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            for (var i = 0; i < reader.FieldCount; i++)
+            {
+                result.Add(reader.GetValue(i));
+            }
+        }
+
+        return result;
     }
     public ValueTask DisposeAsync() => _connection.DisposeAsync();
 }

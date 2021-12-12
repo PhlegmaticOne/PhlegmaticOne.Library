@@ -6,19 +6,21 @@ namespace PhlegmaticOne.Library.Database.SqlCommandBuilders;
 
 public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
 {
-    public string SelectIdExpression<TEntity>(TEntity entity) where TEntity: DomainModelBase
+    public string? SelectIdExpression(DomainModelBase? entity)
     {
-        var entityType = typeof(TEntity);
+        if (entity is null) return null;
+        var entityType = entity.GetType();
         var properties = entity.GetType().GetProperties()
-            .WithoutAppearance<DomainModelBase>(p => p.Name != "Id")
+            .WithoutAppearance<DomainModelBase>(p => p.Name.Contains("Id") == false)
             .Select(p =>
             {
                 var obj = p.GetValue(entity);
-                switch (obj)
+                return obj switch
                 {
-                    case string or DateTime: return $"{p.Name}='{obj}'";
-                    default: return $"{p.Name}={obj}";
-                }
+                    string => $"{p.Name}='{obj}'",
+                    DateTime dt => $"{p.Name}='{dt:yyyy-MM-dd}'",
+                    _ => $"{p.Name}={obj}"
+                };
             });
         return $"SELECT Id FROM {entityType.Name}s WHERE {string.Join(" AND ", properties)}";
     }
