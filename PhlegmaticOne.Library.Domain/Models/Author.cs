@@ -22,5 +22,5 @@ public class Author : DomainModelBase, IEquatable<Author>
         return Equals((Author)obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(Name, Surname, Books);
+    public override int GetHashCode() => HashCode.Combine(Name, Surname);
 }

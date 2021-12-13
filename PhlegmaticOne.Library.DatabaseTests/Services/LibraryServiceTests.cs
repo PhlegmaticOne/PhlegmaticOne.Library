@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.Repository;
@@ -10,33 +11,39 @@ namespace PhlegmaticOne.Library.DatabaseTests.Services;
 public class LibraryServiceTests
 {
     [TestMethod()]
-    public void LibraryServiceTest()
+    public async Task GetBookLendingsAsyncTest()
     {
-        Assert.Fail();
+        var bookLendings =
+            await new LibraryService(new SqlRepository(DefaultConnectionStringGetter.LibraryConnectionStringGetter))
+                .GetBookLendingsAsync();
+        Assert.IsNotNull(bookLendings);
     }
 
     [TestMethod()]
-    public void GetBookLendingsAsyncTest()
+    public async Task GetAbonentLendingsAsyncTest()
     {
-        Assert.Fail();
+        var abonentLendings =
+            await new LibraryService(new SqlRepository(DefaultConnectionStringGetter.LibraryConnectionStringGetter))
+                .GetAbonentLendingsAsync(DateTime.Parse("01.01.2001"), DateTime.Parse("01.01.2022"));
+        Assert.IsNotNull(abonentLendings);
     }
 
     [TestMethod()]
-    public void GetAbonentLendingsAsyncTest()
+    public async Task GetMostPopularAuthorAsyncTest()
     {
-        Assert.Fail();
+        var mostPopularAuthor =
+            await new LibraryService(new SqlRepository(DefaultConnectionStringGetter.LibraryConnectionStringGetter))
+                .GetMostPopularAuthorAsync();
+        Assert.IsNotNull(mostPopularAuthor);
     }
 
     [TestMethod()]
-    public void GetMostPopularAuthorAsyncTest()
+    public async Task GetMostReadingAbonentAsyncTest()
     {
-        Assert.Fail();
-    }
-
-    [TestMethod()]
-    public void GetMostReadingAbonentAsyncTest()
-    {
-        Assert.Fail();
+        var mostReadingAbonent =
+            await new LibraryService(new SqlRepository(DefaultConnectionStringGetter.LibraryConnectionStringGetter))
+                .GetMostReadingAbonentAsync();
+        Assert.IsNotNull(mostReadingAbonent);
     }
 
     [TestMethod()]
