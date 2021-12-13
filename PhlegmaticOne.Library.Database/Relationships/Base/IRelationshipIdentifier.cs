@@ -6,6 +6,7 @@ public interface IRelationshipIdentifier
 {
     ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase;
     ObjectRelationship IdentifyRelationship(DomainModelBase entity);
+    ObjectRelationship IdentifyRelationship(Type entityType);
 }
 
 public enum ObjectRelationship

@@ -250,8 +250,7 @@ public class AdoDataServiceTests
     [TestMethod()]
     public async Task UpdateAsyncTest()
     {
-        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        await context.AddAsync(_genders.First());
+        var list = Convert.ChangeType(_authors, typeof(List<>).MakeGenericType(typeof(Author)));
     }
 
     [TestMethod()]

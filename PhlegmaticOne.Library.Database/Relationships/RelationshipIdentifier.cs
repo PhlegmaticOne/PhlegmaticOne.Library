@@ -5,14 +5,11 @@ namespace PhlegmaticOne.Library.Database.Relationships;
 
 public class RelationshipIdentifier : IRelationshipIdentifier
 {
-    public ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase
+    public ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase => IdentifyRelationship(typeof(TEntity));
+    public ObjectRelationship IdentifyRelationship(DomainModelBase entity) => IdentifyRelationship(entity.GetType());
+    public ObjectRelationship IdentifyRelationship(Type entityType)
     {
-        return IdentifyRelationship(Activator.CreateInstance<TEntity>());
-    }
-
-    public ObjectRelationship IdentifyRelationship(DomainModelBase entity)
-    {
-        var properties = entity.GetType().GetProperties();
+        var properties = entityType.GetProperties();
         if (properties.Any(p => p.PropertyType.IsAssignableTo(typeof(IEnumerable<DomainModelBase>))))
         {
             return properties.Any(p => p.PropertyType.IsAssignableTo(typeof(DomainModelBase))) ?

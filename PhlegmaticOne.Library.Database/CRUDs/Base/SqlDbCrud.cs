@@ -32,7 +32,9 @@ public abstract class SqlDbCrud : DbCrudBase
         await reader.ReadAsync();
         for (int i = 0; i < reader.FieldCount; i++)
         {
-            properties.First(p => p.Name == reader.GetName(i)).SetValue(entity, reader.GetValue(i));
+            var value = reader.GetValue(i);
+            properties.First(p => p.Name == reader.GetName(i))
+                      .SetValue(entity, value == DBNull.Value ? null : value);
         }
         return entity;
     }

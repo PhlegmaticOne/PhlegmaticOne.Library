@@ -28,6 +28,8 @@ public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
     public string SelectLazyByIdExpression<TEntity>(int id) where TEntity : DomainModelBase => 
         $"SELECT * FROM {typeof(TEntity).Name}s WHERE Id={id}";
 
+    public string SelectLazyByIdExpression(int id, Type type) => $"SELECT * FROM {type.Name}s WHERE Id={id}";
+
     public string SelectFromManyToManyTable(int primaryId, string tableName, string primaryColumnName, string foreignColumnName)
     {
         return $"SELECT {foreignColumnName} FROM {tableName} WHERE {primaryColumnName}={primaryId}";

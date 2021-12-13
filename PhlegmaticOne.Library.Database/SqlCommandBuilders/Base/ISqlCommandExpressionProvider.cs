@@ -7,5 +7,6 @@ public interface ISqlCommandExpressionProvider
 {
     string? SelectIdExpression(DomainModelBase? entity);
     string SelectLazyByIdExpression<TEntity>(int id) where TEntity: DomainModelBase;
+    string SelectLazyByIdExpression(int id, Type type);
     string SelectFromManyToManyTable(int primaryId, string tableName, string primaryColumnName, string foreignColumnName);
 }

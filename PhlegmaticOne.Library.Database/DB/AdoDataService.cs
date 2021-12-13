@@ -1,9 +1,16 @@
-﻿using PhlegmaticOne.Library.Database.Connection;
+﻿using System.Data;
+using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.CRUDs;
 using PhlegmaticOne.Library.Domain.Models;
 using PhlegmaticOne.Library.Domain.Services;
 using System.Data.SqlClient;
+using PhlegmaticOne.Library.Database.Configuration;
+using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.Extensions;
+using PhlegmaticOne.Library.Database.Relationships;
+using PhlegmaticOne.Library.Database.Relationships.Base;
+using PhlegmaticOne.Library.Database.SqlCommandBuilders;
+using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 
 namespace PhlegmaticOne.Library.Database.DB;
 
@@ -11,6 +18,7 @@ public class AdoDataService : IDataService, IAsyncDisposable
 {
     private readonly SqlDbCrudsFactory _sqlDbCrudsFactory;
     private SqlConnection _connection;
+    private IRelationshipIdentifier _relationshipIdentifier = new RelationshipIdentifier();
     private AdoDataService(SqlDbCrudsFactory sqlDbCrudsFactory) => _sqlDbCrudsFactory = sqlDbCrudsFactory;
 
     internal static async Task<AdoDataService> CreateInstanceAsync(IConnectionStringGetter connectionStringGetter,
@@ -34,9 +42,17 @@ public class AdoDataService : IDataService, IAsyncDisposable
     {
         throw new NotImplementedException();
     }
-    public async Task<TEntity> GetFullAsync<TEntity>(int id) where TEntity : DomainModelBase
+    public async Task<TEntity?> GetFullAsync<TEntity>(int id) where TEntity : DomainModelBase
     {
-        return await _sqlDbCrudsFactory.SqlCrudFor<TEntity>(_connection).GetFull<TEntity>(id);
+        var algorithms = new SelectingAlgorithms(_connection, _relationshipIdentifier);
+        switch (_relationshipIdentifier.IdentifyRelationship<TEntity>())
+        {
+            case ObjectRelationship.Single: return await algorithms.SelectSingle(id, typeof(TEntity)) as TEntity;
+            case ObjectRelationship.ToAnother: return await algorithms.SelectToAnother(id, typeof(TEntity)) as TEntity;
+            case ObjectRelationship.ToMany: return await algorithms.SelectToMany(id, typeof(TEntity)) as TEntity;
+            case ObjectRelationship.Composite: return await algorithms.SelectComposite(id, typeof(TEntity)) as TEntity;
+            default: throw new ArgumentException();
+        }
     }
     public async Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity : DomainModelBase
     {
@@ -78,4 +94,98 @@ public class AdoDataService : IDataService, IAsyncDisposable
         return result;
     }
     public ValueTask DisposeAsync() => _connection.DisposeAsync();
+}
+
+internal class SelectingAlgorithms
+{
+    private readonly SqlConnection _connection;
+    private readonly ISqlCommandExpressionProvider _expressionProvider = new SqlCommandExpressionProvider();
+    private readonly IRelationshipIdentifier _identifier;
+    private readonly DataContextConfigurationBase<AdoDataService> _dataContextConfiguration = new AdoDataContextConfiguration();
+    internal SelectingAlgorithms(SqlConnection connection, IRelationshipIdentifier identifier)
+    {
+        _connection = connection;
+        _identifier = identifier;
+    }
+    internal async Task<DomainModelBase?> SelectSingle(int id, Type entityType)
+    {
+        return await Task.Run(() =>
+        {
+            var entity = Activator.CreateInstance(entityType) as DomainModelBase;
+            var properties = entityType.GetProperties();
+            var expression = _expressionProvider.SelectLazyByIdExpression(id, entityType);
+            var table = SqlHelper.ToFilledDataTable(_connection, expression);
+            foreach (DataRow row in table.Rows)
+            {
+                foreach (DataColumn column in table.Columns)
+                {
+                    var value = row[column.ColumnName];
+                    properties.First(p => p.Name == column.ColumnName)
+                        .SetValue(entity, row.IsNull(column) ? null : value);
+                }
+            }
+            return entity;
+        });
+    }
+    internal async Task<DomainModelBase> SelectToAnother(int id, Type entityType)
+    {
+        var lazyEntity = await SelectSingle(id, entityType);
+        var entityProperties = lazyEntity.GetType().GetProperties();
+        foreach (var property in lazyEntity.PropertiesWithAppearance<DomainModelBase>())
+        {
+            var relatedEntitiesType = property.PropertyType;
+            var relatedId = entityProperties.First(p => p.Name.Contains(property.Name + "Id")).GetValue(lazyEntity);
+            if(relatedId is null) continue;
+            var relatedEntity = _identifier.IdentifyRelationship(relatedEntitiesType) switch
+            {
+                ObjectRelationship.ToAnother => await SelectToAnother((int)relatedId, relatedEntitiesType),
+                ObjectRelationship.ToMany => await SelectToMany((int)relatedId, relatedEntitiesType),
+                ObjectRelationship.Composite => await SelectComposite((int)relatedId, relatedEntitiesType),
+                _ => await SelectSingle((int)relatedId, relatedEntitiesType),
+            };
+            property.SetValue(lazyEntity, relatedEntity);
+        }
+        return lazyEntity;
+    }
+    internal async Task<DomainModelBase> SelectToMany(int id, Type entityType, DomainModelBase configuringEntity = null)
+    {
+        var initialConfiguringEntity = Activator.CreateInstance(entityType) as DomainModelBase;
+        var relatedObjectsCollectionInToManyRelationship = initialConfiguringEntity.PropertiesWithAppearance<IEnumerable<DomainModelBase>>().First();
+        DomainModelBase? relatedEntity = default;
+        if (entityType != _dataContextConfiguration.ManyToManyAddingEntity.GetType())
+        {
+            var relatedObjects = initialConfiguringEntity.PropertiesWithAppearance<DomainModelBase>();
+            relatedEntity = relatedObjects.Count() == 0 ? await SelectSingle(id, entityType) : await SelectToAnother(id, entityType);
+            relatedObjectsCollectionInToManyRelationship.PropertyType.GetMethod("Add")
+                .Invoke(relatedEntity.PropertiesWithAppearance<IEnumerable<DomainModelBase>>().First().GetValue(relatedEntity),
+                    new object[] { configuringEntity });
+            return relatedEntity;
+        }
+        var relatedEntities = new List<DomainModelBase>();
+        var relatedEntitiesType = relatedObjectsCollectionInToManyRelationship.PropertyType.GenericTypeArguments.First();
+        var expression = _expressionProvider.SelectFromManyToManyTable(id, entityType.Name + "s" + relatedEntitiesType.Name + "s",
+                                                              entityType.Name + "Id", relatedEntitiesType.Name + "Id");
+        foreach (DataRow row in SqlHelper.ToFilledDataTable(_connection, expression).Rows)
+        {
+            var relatedId = (int)row.ItemArray[0];
+            relatedEntity = _identifier.IdentifyRelationship(relatedEntitiesType) switch
+            {
+                ObjectRelationship.ToAnother => await SelectToAnother(relatedId, relatedEntitiesType),
+                ObjectRelationship.ToMany => await SelectToMany(relatedId, relatedEntitiesType, initialConfiguringEntity),
+                ObjectRelationship.Composite => await SelectComposite(relatedId, relatedEntitiesType),
+                _ => await SelectSingle(relatedId, relatedEntitiesType),
+            };
+            relatedEntities.Add(relatedEntity);
+        }
+        relatedObjectsCollectionInToManyRelationship.SetValue(initialConfiguringEntity, relatedEntities.CastTo(relatedEntitiesType));
+        return initialConfiguringEntity;
+    }
+    internal async Task<DomainModelBase> SelectComposite(int id, Type entityType)
+    {
+        var toAnotherEntity = await SelectToAnother(id, entityType);
+        var toManyEntity = await SelectToMany(id, entityType);
+        var relatedObjects = toManyEntity.PropertiesWithAppearance<IEnumerable<DomainModelBase>>().First();
+        relatedObjects.SetValue(toAnotherEntity, relatedObjects.GetValue(toManyEntity));
+        return toAnotherEntity;
+    }
 }

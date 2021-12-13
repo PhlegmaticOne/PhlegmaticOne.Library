@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.CRUDs.Base;
 using PhlegmaticOne.Library.Database.DB;
@@ -61,7 +62,9 @@ public class ToManySqLDbCrud : SqlDbCrud
                     var relatedEntity = await ToGeneric(relatedEntitiesType, relatedId);
                     relatedEntities.Add(relatedEntity);
                 }
-                relatedObjects.SetValue(lazyEntity, relatedEntities.Cast<Author>());
+
+                var s = relatedEntities.CastTo(relatedEntitiesType);
+                relatedObjects.SetValue(lazyEntity, s);
                 return lazyEntity;
             }
             default: throw new ArgumentException();

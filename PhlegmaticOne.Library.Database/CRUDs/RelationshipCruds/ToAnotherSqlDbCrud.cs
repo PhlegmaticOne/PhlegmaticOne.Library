@@ -44,8 +44,12 @@ public class ToAnotherSqlDbCrud : SqlDbCrud
         var relatedObjects = lazyEntity.PropertiesWithAppearance<DomainModelBase>();
         foreach (var property in relatedObjects)
         {
-            var relatedId = (int)properties.First(p => p.Name.Contains(property.Name + "Id")).GetValue(lazyEntity);
-            var relatedObject = await ToGeneric(property.PropertyType, relatedId);
+            var relatedId = properties.First(p => p.Name.Contains(property.Name + "Id")).GetValue(lazyEntity);
+            DomainModelBase? relatedObject = default;
+            if (relatedId is not null)
+            {
+                relatedObject = await ToGeneric(property.PropertyType, (int) relatedId);
+            }
             property.SetValue(lazyEntity, relatedObject);
         }
         return lazyEntity;

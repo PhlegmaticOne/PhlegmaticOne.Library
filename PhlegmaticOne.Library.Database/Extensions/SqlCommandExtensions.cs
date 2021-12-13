@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections;
+using System.Data;
 using System.Reflection;
 using PhlegmaticOne.Library.Domain.Models;
 
@@ -27,4 +28,11 @@ public static class SqlCommandExtensions
     public static IEnumerable<PropertyInfo> PropertiesWithAppearance<TProperty>(this DomainModelBase entity) =>
         entity.GetType().GetProperties()
             .Where(p => p.PropertyType.IsAssignableTo(typeof(TProperty)));
+
+    public static IEnumerable CastTo(this List<DomainModelBase> collection, Type type) =>
+        type.Name switch
+        {
+            "Author" => collection.Cast<Author>(),
+            _ => collection
+        };
 }
