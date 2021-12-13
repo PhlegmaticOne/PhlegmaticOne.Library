@@ -19,7 +19,7 @@ public class Author : DomainModelBase, IEquatable<Author>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Author) obj);
+        return Equals((Author)obj);
     }
 
     public override int GetHashCode() => HashCode.Combine(Name, Surname, Books);

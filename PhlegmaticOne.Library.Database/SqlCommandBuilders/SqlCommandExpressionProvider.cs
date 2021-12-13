@@ -24,4 +24,12 @@ public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
             });
         return $"SELECT Id FROM {entityType.Name}s WHERE {string.Join(" AND ", properties)}";
     }
+
+    public string SelectLazyByIdExpression<TEntity>(int id) where TEntity : DomainModelBase => 
+        $"SELECT * FROM {typeof(TEntity).Name}s WHERE Id={id}";
+
+    public string SelectFromManyToManyTable(int primaryId, string tableName, string primaryColumnName, string foreignColumnName)
+    {
+        return $"SELECT {foreignColumnName} FROM {tableName} WHERE {primaryColumnName}={primaryId}";
+    }
 }

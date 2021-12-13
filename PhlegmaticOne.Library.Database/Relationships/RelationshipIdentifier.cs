@@ -7,7 +7,12 @@ public class RelationshipIdentifier : IRelationshipIdentifier
 {
     public ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase
     {
-        var properties = typeof(TEntity).GetProperties();
+        return IdentifyRelationship(Activator.CreateInstance<TEntity>());
+    }
+
+    public ObjectRelationship IdentifyRelationship(DomainModelBase entity)
+    {
+        var properties = entity.GetType().GetProperties();
         if (properties.Any(p => p.PropertyType.IsAssignableTo(typeof(IEnumerable<DomainModelBase>))))
         {
             return properties.Any(p => p.PropertyType.IsAssignableTo(typeof(DomainModelBase))) ?

@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using System.Xml;
 
 string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=LibraryDataBase;Integrated Security=True";
 //using (SqlConnection connection = new SqlConnection(connectionString))
@@ -34,10 +33,10 @@ static void DisplayData(DataTable table)
 
     //foreach (DataRow row in table.Rows)
     //{
-        
+
     //    foreach (DataColumn col in table.Columns)
     //    {
-            
+
     //        Console.WriteLine("{0} = {1}", col.ColumnName, row[col]);
     //    }
     //    Console.WriteLine("============================");

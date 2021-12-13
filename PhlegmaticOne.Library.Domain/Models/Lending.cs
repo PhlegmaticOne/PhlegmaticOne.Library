@@ -27,7 +27,7 @@ public class Lending : DomainModelBase, IEquatable<Lending>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((Lending) obj);
+        return Equals((Lending)obj);
     }
 
     public override int GetHashCode()

@@ -21,7 +21,7 @@ public class Abonent : DomainModelBase, IEquatable<Abonent>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Abonent) obj);
+        return Equals((Abonent)obj);
     }
     public override int GetHashCode() => HashCode.Combine(Name, Surname, Patronymic, BirthDate, Gender);
 }

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Factory;
-using PhlegmaticOne.Library.Database.Relationships;
-using PhlegmaticOne.Library.Database.SqlCommandBuilders;
 using PhlegmaticOne.Library.Domain.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PhlegmaticOne.Library.DatabaseTests.DB;
 
@@ -173,15 +170,15 @@ public class AdoDataServiceTests
 
     private static readonly List<Lending> _lendings = new()
     {
-        //new()
-        //{
-        //    Abonent = _abonents[0],
-        //    Book = _books[0],
-        //    LendingDate = DateTime.Parse("11.11.2021"),
-        //    IsReturned = true,
-        //    ReturnDate = DateTime.Parse("20.11.2021"),
-        //    State = _states[0]
-        //},
+        new()
+        {
+            Abonent = _abonents[0],
+            Book = _books[0],
+            LendingDate = DateTime.Parse("11.11.2021"),
+            IsReturned = true,
+            ReturnDate = DateTime.Parse("20.11.2021"),
+            State = _states[0]
+        },
         new()
         {
             Abonent = _abonents[1],
@@ -202,33 +199,30 @@ public class AdoDataServiceTests
         },
     };
 
+    private const string _serverName = @"(localdb)\MSSQLLocalDB";
+    private const string _dbName = @"LibraryDataBase";
+    private readonly IConnectionStringGetter _getter = new DefaultConnectionStringGetter(_serverName, _dbName);
     [TestMethod()]
     public async Task EnsureDeletedAsyncTest()
     {
-        var serverName = @"(localdb)\MSSQLLocalDB";
-        var dataBaseName = @"LibraryDataBase";
-        var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
-        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(getter);
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
         await context.EnsureDeletedAsync();
     }
 
     [TestMethod()]
     public async Task AddAsyncTest()
     {
-        var serverName = @"(localdb)\MSSQLLocalDB";
-        var dataBaseName = @"LibraryDataBase";
-        var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
-        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(getter);
-        //await AddAll(_genders, context);
-        //await AddAll(_genres, context);
-        //await AddAll(_states, context);
-        //await AddAll(_abonents, context);
-        //await AddAll(_authors, context);
-        //await AddAll(_books, context);
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
+        await AddAll(_genders, context);
+        await AddAll(_genres, context);
+        await AddAll(_states, context);
+        await AddAll(_abonents, context);
+        await AddAll(_authors, context);
+        await AddAll(_books, context);
         await AddAll(_lendings, context);
     }
 
-    private async Task AddAll<TEntity>(IEnumerable<TEntity> entities, AdoDataService service) where TEntity: DomainModelBase
+    private async Task AddAll<TEntity>(IEnumerable<TEntity> entities, AdoDataService service) where TEntity : DomainModelBase
     {
         foreach (var entity in entities)
         {
@@ -238,10 +232,7 @@ public class AdoDataServiceTests
     [TestMethod()]
     public async Task GetIdOfExistingTest()
     {
-        var serverName = @"(localdb)\MSSQLLocalDB";
-        var dataBaseName = @"LibraryDataBase";
-        var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
-        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(getter);
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
         var sss = await context.AddAsync(_genders.First());
         var aaa = await context.AddAsync(_abonents.First());
     }
@@ -259,25 +250,23 @@ public class AdoDataServiceTests
     [TestMethod()]
     public async Task UpdateAsyncTest()
     {
-        var serverName = @"(localdb)\MSSQLLocalDB";
-        var dataBaseName = @"LibraryDataBase";
-        var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
-        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(getter);
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
         await context.AddAsync(_genders.First());
     }
 
     [TestMethod()]
     public async Task GetLazyAsyncTest()
     {
-        var serverName = @"(localdb)\MSSQLLocalDB";
-        var dataBaseName = @"LibraryDataBase";
-        var getter = new DefaultConnectionStringGetter(serverName, dataBaseName);
-        var db = AdoDataServiceFactory.DefaultInstanceAsync(getter);
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
+        var abonent = await context.GetLazyAsync<Abonent>(2016);
+        Assert.IsNotNull(abonent);
     }
 
     [TestMethod()]
-    public void GetFullAsyncTest()
+    public async Task GetFullAsyncTest()
     {
-        Assert.IsTrue(typeof(ICollection<Author>).IsAssignableTo(typeof(IEnumerable<DomainModelBase>)));
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
+        var book = await context.GetFullAsync<Book>(13);
+        Assert.IsNotNull(book);
     }
 }

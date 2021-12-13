@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
 using System.Reflection;
 using PhlegmaticOne.Library.Domain.Models;
 
@@ -24,4 +23,8 @@ public static class SqlCommandExtensions
         }
         return dataRow;
     }
+
+    public static IEnumerable<PropertyInfo> PropertiesWithAppearance<TProperty>(this DomainModelBase entity) =>
+        entity.GetType().GetProperties()
+            .Where(p => p.PropertyType.IsAssignableTo(typeof(TProperty)));
 }

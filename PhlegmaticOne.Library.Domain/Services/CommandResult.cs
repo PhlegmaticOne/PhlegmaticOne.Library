@@ -16,7 +16,7 @@ public abstract class CommandResult<TEntity> where TEntity : DomainModelBase
     }
 }
 
-public class AddCommandResult<TEntity> : CommandResult<TEntity> where TEntity: DomainModelBase
+public class AddCommandResult<TEntity> : CommandResult<TEntity> where TEntity : DomainModelBase
 {
     public override CommandType CommandType => CommandType.Add;
     public AddCommandResult(string message, TEntity entity, bool isSuccessful) : base(message, entity, isSuccessful) { }

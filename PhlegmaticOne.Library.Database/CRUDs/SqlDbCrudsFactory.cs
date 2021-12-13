@@ -1,11 +1,11 @@
-﻿using System.Data.SqlClient;
-using PhlegmaticOne.Library.Database.Configuration.Base;
+﻿using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.CRUDs.Base;
 using PhlegmaticOne.Library.Database.CRUDs.RelationshipCruds;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
+using System.Data.SqlClient;
 
 namespace PhlegmaticOne.Library.Database.CRUDs;
 
@@ -25,7 +25,15 @@ public class SqlDbCrudsFactory
     }
 
     public SqlDbCrud SqlCrudFor<TEntity>(SqlConnection connection)
-        where TEntity: DomainModelBase => _relationshipIdentifier.IdentifyRelationship<TEntity>() switch
+        where TEntity : DomainModelBase => _relationshipIdentifier.IdentifyRelationship<TEntity>() switch
+        {
+            ObjectRelationship.Single => new SingleSqlDbCrud(connection, _expressionProvider, _configuration),
+            ObjectRelationship.ToAnother => new ToAnotherSqlDbCrud(connection, _expressionProvider, _configuration),
+            ObjectRelationship.ToMany => new ToManySqLDbCrud(connection, _expressionProvider, _configuration),
+            ObjectRelationship.Composite => new CompositeSqlDbCrud(connection, _expressionProvider, _configuration),
+            _ => throw new ArgumentException()
+        };
+    public SqlDbCrud SqlCrudFor(DomainModelBase entity, SqlConnection connection) => _relationshipIdentifier.IdentifyRelationship(entity) switch
     {
         ObjectRelationship.Single => new SingleSqlDbCrud(connection, _expressionProvider, _configuration),
         ObjectRelationship.ToAnother => new ToAnotherSqlDbCrud(connection, _expressionProvider, _configuration),

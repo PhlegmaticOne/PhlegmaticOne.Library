@@ -4,7 +4,8 @@ namespace PhlegmaticOne.Library.Database.Relationships.Base;
 
 public interface IRelationshipIdentifier
 {
-    ObjectRelationship IdentifyRelationship<TEntity>() where TEntity: DomainModelBase;
+    ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase;
+    ObjectRelationship IdentifyRelationship(DomainModelBase entity);
 }
 
 public enum ObjectRelationship

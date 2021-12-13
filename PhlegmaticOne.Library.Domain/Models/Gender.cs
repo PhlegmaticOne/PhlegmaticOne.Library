@@ -18,7 +18,7 @@ public class Gender : DomainModelBase, IEquatable<Gender>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Gender) obj);
+        return Equals((Gender)obj);
     }
 
     public override int GetHashCode() => Name.GetHashCode();

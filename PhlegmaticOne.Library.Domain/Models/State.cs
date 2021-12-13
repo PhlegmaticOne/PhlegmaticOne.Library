@@ -23,7 +23,7 @@ public class State : DomainModelBase, IEquatable<State>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((State) obj);
+        return Equals((State)obj);
     }
 
     public override int GetHashCode() => Name.GetHashCode();
