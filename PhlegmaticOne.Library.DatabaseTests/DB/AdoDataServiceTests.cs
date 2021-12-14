@@ -275,7 +275,7 @@ public class AdoDataServiceTests
         var book = await context.AddAsync(new Lending()
         {
             Abonent = _abonents.First(),
-            Book = _books.First(),
+            Book = _books[4],
             LendingDate = DateTime.Parse("11.11.2021"),
             IsReturned = true,
             ReturnDate = DateTime.Parse("31.12.2021"),

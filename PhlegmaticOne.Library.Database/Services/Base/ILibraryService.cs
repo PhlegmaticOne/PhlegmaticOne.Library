@@ -9,4 +9,5 @@ public interface ILibraryService
     public Task<Author> GetMostPopularAuthorAsync();
     public Task<Abonent> GetMostReadingAbonentAsync();
     public Task<Genre> GetMostPopularGenreAsync();
+    public Task<IEnumerable<Book>> GetRepairRequiredBooksAsync();
 }

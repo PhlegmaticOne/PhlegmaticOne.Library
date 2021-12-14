@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using PhlegmaticOne.Library.Database.Repository;
+﻿using PhlegmaticOne.Library.Database.Repository;
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Database.Services;
@@ -33,5 +32,11 @@ public class LibraryService : ILibraryService
     {
         var entities = await _repository.ReadAll<Lending>();
         return entities.GroupBy(x => x.Book.Genre).MaxBy(x => x.Count()).Key;
+    }
+
+    public async Task<IEnumerable<Book>> GetRepairRequiredBooksAsync()
+    {
+        var entities = await _repository.ReadAll<Lending>();
+        return entities.Where(p => p.IsReturned && p.State.IsRepairNeeded()).Select(e => e.Book);
     }
 }

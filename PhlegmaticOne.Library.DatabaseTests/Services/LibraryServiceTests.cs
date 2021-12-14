@@ -53,4 +53,11 @@ public class LibraryServiceTests
                               .GetMostPopularGenreAsync();
         Assert.IsNotNull(genre);
     }
+    [TestMethod()]
+    public async Task GetRepairRequiredBooksAsyncTest()
+    {
+        var genre = await new LibraryService(new SqlRepository(DefaultConnectionStringGetter.LibraryConnectionStringGetter))
+            .GetRepairRequiredBooksAsync();
+        Assert.IsNotNull(genre);
+    }
 }
