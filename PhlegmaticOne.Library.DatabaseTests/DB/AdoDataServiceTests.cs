@@ -230,27 +230,26 @@ public class AdoDataServiceTests
         }
     }
     [TestMethod()]
-    public async Task GetIdOfExistingTest()
+    public async Task DeleteAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        var sss = await context.AddAsync(_genders.First());
-        var aaa = await context.AddAsync(_abonents.First());
-    }
-
-    [TestMethod()]
-    public void DeleteAsyncTest()
-    {
-        var book = _books[0];
-        var props =
-            book.GetType().GetProperties().ToDictionary(key => key.Name, value => value.GetValue(book));
-
-        Assert.IsNotNull(props);
+        var deletedCount = await context.DeleteAsync<Abonent>(2016);
+        Assert.AreEqual(1, deletedCount);
     }
 
     [TestMethod()]
     public async Task UpdateAsyncTest()
     {
-        var list = Convert.ChangeType(_authors, typeof(List<>).MakeGenericType(typeof(Author)));
+        await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
+        var updatedId = await context.UpdateAsync(2015, new Abonent
+        {
+            Name = "Slavyana",
+            Surname = "Leadova",
+            Patronymic = "Alexeevna",
+            BirthDate = DateTime.Parse("01.01.2001"),
+            Gender = _genders[1]
+        });
+        Assert.IsTrue(updatedId != 0);
     }
 
     [TestMethod()]
@@ -269,7 +268,7 @@ public class AdoDataServiceTests
         Assert.IsNotNull(book);
     }
     [TestMethod()]
-    public async Task GetLendingAsyncTest()
+    public async Task AddLendingAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
         var book = await context.AddAsync(new Lending()

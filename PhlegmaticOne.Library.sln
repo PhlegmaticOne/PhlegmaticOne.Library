@@ -17,13 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Repor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Reports.ExcelReportProvider", "PhlegmaticOne.Library.Reports.ExcelReportProvider\PhlegmaticOne.Library.Reports.ExcelReportProvider.csproj", "{B84E55D4-BBDB-4071-BD73-A17BEC589C39}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reports", "Reports", "{848D7CB6-ED40-4C9F-BD5A-FB4D28503957}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Reports.PdfReportProvider", "PhlegmaticOne.Library.Reports.PdfReportProvider\PhlegmaticOne.Library.Reports.PdfReportProvider.csproj", "{3C507C82-6B20-468C-A5A5-2B12A0CE359B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExcelReports", "ExcelReports", "{61D142D7-E691-459A-B5B3-6052B4460C71}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.Reports.PdfReportProvider", "PhlegmaticOne.Library.Reports.PdfReportProvider\PhlegmaticOne.Library.Reports.PdfReportProvider.csproj", "{3C507C82-6B20-468C-A5A5-2B12A0CE359B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.ReportTests", "PhlegmaticOne.Library.ReportTests\PhlegmaticOne.Library.ReportTests.csproj", "{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.ReportTests", "PhlegmaticOne.Library.ReportTests\PhlegmaticOne.Library.ReportTests.csproj", "{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,9 +66,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{61D142D7-E691-459A-B5B3-6052B4460C71} = {848D7CB6-ED40-4C9F-BD5A-FB4D28503957}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC6C41E4-987B-40E7-8AD7-70B0EA1AA10B}

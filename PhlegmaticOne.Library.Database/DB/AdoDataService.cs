@@ -19,6 +19,8 @@ public class AdoDataService : IDataService, IAsyncDisposable
     private readonly SqlDbCrudsFactory _sqlDbCrudsFactory;
     private SqlConnection _connection;
     private IRelationshipIdentifier _relationshipIdentifier = new RelationshipIdentifier();
+    private ISqlCommandExpressionProvider _sqlCommandExpressionProvider = new SqlCommandExpressionProvider();
+    private DataContextConfigurationBase<AdoDataService> _dataContextConfiguration = new AdoDataContextConfiguration();
     private AdoDataService(SqlDbCrudsFactory sqlDbCrudsFactory) => _sqlDbCrudsFactory = sqlDbCrudsFactory;
 
     internal static async Task<AdoDataService> CreateInstanceAsync(IConnectionStringGetter connectionStringGetter,
@@ -31,36 +33,35 @@ public class AdoDataService : IDataService, IAsyncDisposable
     }
     public async Task<int?> AddAsync<TEntity>(TEntity entity) where TEntity : DomainModelBase =>
         await _sqlDbCrudsFactory.SqlCrudFor<TEntity>(_connection).AddAsync(entity);
-    public async Task<TEntity> GetLazyAsync<TEntity>(int id) where TEntity : DomainModelBase =>
-        await _sqlDbCrudsFactory.SqlCrudFor<TEntity>(_connection).GetLazy<TEntity>(id);
+    public async Task<TEntity?> GetLazyAsync<TEntity>(int id) where TEntity : DomainModelBase =>
+        await new SelectingAlgorithms(_connection, _relationshipIdentifier, _sqlCommandExpressionProvider, _dataContextConfiguration)
+                 .SelectSingle(id, typeof(TEntity)) as TEntity;
 
-    public Task<DeleteCommandResult<TEntity>> DeleteAsync<TEntity>(int id) where TEntity : DomainModelBase
+    public async Task<int> DeleteAsync<TEntity>(int id) where TEntity : DomainModelBase
     {
-        throw new NotImplementedException();
+        await using var command = new SqlCommand(_sqlCommandExpressionProvider.DeleteExpression<TEntity>(id), _connection);
+        return await command.ExecuteNonQueryAsync();
     }
-    public Task<UpdateCommandResult<TEntity>> UpdateAsync<TEntity>(int id, TEntity newEntity) where TEntity : DomainModelBase
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<int?> UpdateAsync<TEntity>(int id, TEntity newEntity) where TEntity : DomainModelBase => 
+        await DeleteAsync<TEntity>(id) != 0 ? await AddAsync(newEntity) : -1;
     public async Task<TEntity?> GetFullAsync<TEntity>(int id) where TEntity : DomainModelBase
     {
-        var algorithms = new SelectingAlgorithms(_connection, _relationshipIdentifier);
-        switch (_relationshipIdentifier.IdentifyRelationship<TEntity>())
+        var algorithms = new SelectingAlgorithms(_connection, _relationshipIdentifier, _sqlCommandExpressionProvider, _dataContextConfiguration);
+        return _relationshipIdentifier.IdentifyRelationship<TEntity>() switch
         {
-            case ObjectRelationship.Single: return await algorithms.SelectSingle(id, typeof(TEntity)) as TEntity;
-            case ObjectRelationship.ToAnother: return await algorithms.SelectToAnother(id, typeof(TEntity)) as TEntity;
-            case ObjectRelationship.ToMany: return await algorithms.SelectToMany(id, typeof(TEntity)) as TEntity;
-            case ObjectRelationship.Composite: return await algorithms.SelectComposite(id, typeof(TEntity)) as TEntity;
-            default: throw new ArgumentException();
-        }
+            ObjectRelationship.Single => await algorithms.SelectSingle(id, typeof(TEntity)) as TEntity,
+            ObjectRelationship.ToAnother => await algorithms.SelectToAnother(id, typeof(TEntity)) as TEntity,
+            ObjectRelationship.ToMany => await algorithms.SelectToMany(id, typeof(TEntity)) as TEntity,
+            ObjectRelationship.Composite => await algorithms.SelectComposite(id, typeof(TEntity)) as TEntity,
+            _ => throw new ArgumentException()
+        };
     }
     public async Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity : DomainModelBase
     {
-        //var expression = _sqlCommandBuilder.SelectIdExpression(entity);
-        //var reader = await Parametrize(new SqlCommand(expression, _connection), entity).ExecuteReaderAsync();
-        //int id = default;
-        //while (reader.Read()) id = reader.GetInt32(0);
-        return await Task.Run(() => 3);
+        var expression = _sqlCommandExpressionProvider.SelectIdExpression(entity);
+        var reader = await new SqlCommand(expression, _connection).ExecuteReaderAsync();
+        await reader.ReadAsync();
+        return reader.GetInt32(0);
     }
 
     public async Task<int> EnsureDeletedAsync()
@@ -79,7 +80,7 @@ public class AdoDataService : IDataService, IAsyncDisposable
         }
         return totalDeleted;
     }
-    public async Task<IEnumerable<object>> ExecuteCommand(string commandText)
+    internal async Task<IEnumerable<object>> ExecuteCommand(string commandText)
     {
         var result = new List<object>();
         await using var command = new SqlCommand(commandText, _connection);
@@ -94,18 +95,23 @@ public class AdoDataService : IDataService, IAsyncDisposable
         return result;
     }
     public ValueTask DisposeAsync() => _connection.DisposeAsync();
+    ~AdoDataService() => DisposeAsync();
 }
 
 internal class SelectingAlgorithms
 {
     private readonly SqlConnection _connection;
-    private readonly ISqlCommandExpressionProvider _expressionProvider = new SqlCommandExpressionProvider();
+    private readonly ISqlCommandExpressionProvider _expressionProvider;
     private readonly IRelationshipIdentifier _identifier;
-    private readonly DataContextConfigurationBase<AdoDataService> _dataContextConfiguration = new AdoDataContextConfiguration();
-    internal SelectingAlgorithms(SqlConnection connection, IRelationshipIdentifier identifier)
+    private readonly DataContextConfigurationBase<AdoDataService> _dataContextConfiguration;
+    internal SelectingAlgorithms(SqlConnection connection, IRelationshipIdentifier identifier,
+                                 ISqlCommandExpressionProvider expressionProvider,
+                                 DataContextConfigurationBase<AdoDataService> dataContextConfiguration)
     {
         _connection = connection;
         _identifier = identifier;
+        _expressionProvider = expressionProvider;
+        _dataContextConfiguration = dataContextConfiguration;
     }
     internal async Task<DomainModelBase?> SelectSingle(int id, Type entityType)
     {
@@ -121,7 +127,7 @@ internal class SelectingAlgorithms
                 {
                     var value = row[column.ColumnName];
                     properties.First(p => p.Name == column.ColumnName)
-                        .SetValue(entity, row.IsNull(column) ? null : value);
+                              .SetValue(entity, row.IsNull(column) ? null : value);
                 }
             }
             return entity;
@@ -188,4 +194,9 @@ internal class SelectingAlgorithms
         relatedObjects.SetValue(toAnotherEntity, relatedObjects.GetValue(toManyEntity));
         return toAnotherEntity;
     }
+}
+
+internal class AddingAlgorithms
+{
+
 }
