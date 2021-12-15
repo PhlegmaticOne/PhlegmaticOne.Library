@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PhlegmaticOne.Library.Database.Extensions;
 
 namespace PhlegmaticOne.Library.DatabaseTests.DB;
 
@@ -241,7 +242,7 @@ public class AdoDataServiceTests
     public async Task UpdateAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        var updatedId = await context.UpdateAsync(2015, new Abonent
+        await context.UpdateAsync(2015, new Abonent
         {
             Name = "Slavyana",
             Surname = "Leadova",
@@ -249,7 +250,6 @@ public class AdoDataServiceTests
             BirthDate = DateTime.Parse("01.01.2001"),
             Gender = _genders[1]
         });
-        Assert.IsTrue(updatedId != 0);
     }
 
     [TestMethod()]
@@ -259,13 +259,12 @@ public class AdoDataServiceTests
         var abonent = await context.GetLazyAsync<Abonent>(2016);
         Assert.IsNotNull(abonent);
     }
-
     [TestMethod()]
     public async Task GetFullAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        var book = await context.GetFullAsync<Book>(13);
-        Assert.IsNotNull(book);
+        var author = await context.GetFullAsync<Author>(3018);
+        Assert.IsNotNull(author);
     }
     [TestMethod()]
     public async Task AddLendingAsyncTest()

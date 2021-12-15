@@ -8,6 +8,8 @@ public abstract class DataContextConfigurationBase<TContext> where TContext : ID
     public abstract IDictionary<Type, string> TableNames { get; }
     public abstract string IdentificationPropertyName { get; }
     public abstract TableNamesConfiguringType TableNamesConfiguringType { get; }
+    public abstract string ForeignPropertyNameFor(Type propertyType);
+    public abstract Type ToManyCollectionType { get; }
     public abstract DomainModelBase ManyToManyAddingEntity { get; }
     public abstract ManyToManyAddingType ManyToManyAddingType { get; }
     public abstract OneToManyAddingType OneToManyAddingType { get; }

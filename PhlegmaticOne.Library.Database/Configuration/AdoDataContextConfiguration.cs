@@ -1,4 +1,5 @@
-﻿using PhlegmaticOne.Library.Database.Configuration.Base;
+﻿using System.Reflection;
+using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Domain.Models;
 
@@ -13,6 +14,8 @@ public class AdoDataContextConfiguration : DataContextConfigurationBase<AdoDataS
     };
     public override string IdentificationPropertyName => "Id";
     public override TableNamesConfiguringType TableNamesConfiguringType => TableNamesConfiguringType.AddSToTypeName;
+    public override string ForeignPropertyNameFor(Type propertyType) => propertyType.Name + IdentificationPropertyName;
+    public override Type ToManyCollectionType => typeof(IEnumerable<DomainModelBase>);
     public override DomainModelBase ManyToManyAddingEntity => new Book();
     public override ManyToManyAddingType ManyToManyAddingType => ManyToManyAddingType.ForeignPropertiesMustExist;
     public override OneToManyAddingType OneToManyAddingType => OneToManyAddingType.ForeignPropertiesMustExist;

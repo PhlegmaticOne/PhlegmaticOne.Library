@@ -12,7 +12,7 @@ public static class SqlCommandExtensions
         propertyInfos.Where(p =>
             p.PropertyType.IsAssignableTo(typeof(T)) == false &&
             p.PropertyType.IsAssignableTo(typeof(IEnumerable<T>)) == false);
-    public static IEnumerable<PropertyInfo> WithoutAppearance<T>(this PropertyInfo[] propertyInfos, Func<PropertyInfo, bool> additionalPredicate) =>
+    public static IEnumerable<PropertyInfo> WithoutAppearance<T>(this IEnumerable<PropertyInfo> propertyInfos, Func<PropertyInfo, bool> additionalPredicate) =>
         propertyInfos.Where(p =>
             p.PropertyType.IsAssignableTo(typeof(T)) == false &&
             p.PropertyType.IsAssignableTo(typeof(IEnumerable<T>)) == false).Where(additionalPredicate);
@@ -32,7 +32,8 @@ public static class SqlCommandExtensions
     public static IEnumerable CastTo(this List<DomainModelBase> collection, Type type) =>
         type.Name switch
         {
-            "Author" => collection.Cast<Author>(),
+            "Author" => collection.Cast<Author>().ToList(),
+            "Book" => collection.Cast<Book>().ToList(),
             _ => collection
         };
 }

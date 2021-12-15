@@ -13,7 +13,7 @@ public class AdoDataServiceFactory
     private static readonly object _lock = new();
     private AdoDataServiceFactory() { }
     public static Task<AdoDataService> GetInstanceAsync(IConnectionStringGetter connectionStringGetter,
-                                                        SqlDbCrudsFactory sqlDbCrudsFactory)
+                                                        SqlDbAddingFactory sqlDbCrudsFactory)
     {
         lock (_lock) return _adoDataService ??= AdoDataService.CreateInstanceAsync(connectionStringGetter, sqlDbCrudsFactory);
     }
@@ -22,6 +22,6 @@ public class AdoDataServiceFactory
     {
         lock (_lock)
             return _adoDataService ??= AdoDataService.CreateInstanceAsync(connectionStringGetter,
-                new SqlDbCrudsFactory(new RelationshipIdentifier(), new SqlCommandExpressionProvider(), new AdoDataContextConfiguration()));
+                new SqlDbAddingFactory(new RelationshipIdentifier(), new SqlCommandExpressionProvider(), new AdoDataContextConfiguration()));
     }
 }
