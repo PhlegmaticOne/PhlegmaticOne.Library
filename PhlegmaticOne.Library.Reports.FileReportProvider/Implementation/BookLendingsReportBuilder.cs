@@ -1,5 +1,5 @@
-﻿using System.Text;
-using PhlegmaticOne.Library.Domain.Models;
+﻿using PhlegmaticOne.Library.Domain.Models;
+using System.Text;
 
 namespace PhlegmaticOne.Library.Reports.FileReportProvider.Implementation;
 

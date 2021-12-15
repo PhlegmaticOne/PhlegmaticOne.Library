@@ -1,17 +1,12 @@
-﻿using System.Data;
+﻿using PhlegmaticOne.Library.Database.Configuration;
+using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.CRUDs;
+using PhlegmaticOne.Library.Database.Relationships.Base;
+using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
 using PhlegmaticOne.Library.Domain.Services;
 using System.Data.SqlClient;
-using System.Reflection;
-using PhlegmaticOne.Library.Database.Configuration;
-using PhlegmaticOne.Library.Database.Configuration.Base;
-using PhlegmaticOne.Library.Database.Extensions;
-using PhlegmaticOne.Library.Database.Relationships;
-using PhlegmaticOne.Library.Database.Relationships.Base;
-using PhlegmaticOne.Library.Database.SqlCommandBuilders;
-using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 
 namespace PhlegmaticOne.Library.Database.DB;
 
@@ -19,15 +14,23 @@ public class AdoDataService : IDataService, IAsyncDisposable
 {
     private readonly SqlDbAddingFactory _sqlDbCrudsFactory;
     private SqlConnection _connection;
-    private IRelationshipIdentifier _relationshipIdentifier = new RelationshipIdentifier();
-    private ISqlCommandExpressionProvider _sqlCommandExpressionProvider = new SqlCommandExpressionProvider();
+    private IRelationshipIdentifier _relationshipIdentifier;
+    private ISqlCommandExpressionProvider _sqlCommandExpressionProvider;
     private DataContextConfigurationBase<AdoDataService> _dataContextConfiguration = new AdoDataContextConfiguration();
-    private AdoDataService(SqlDbAddingFactory sqlDbCrudsFactory) => _sqlDbCrudsFactory = sqlDbCrudsFactory;
+    private AdoDataService(SqlDbAddingFactory sqlDbCrudsFactory, IRelationshipIdentifier relationshipIdentifier,
+                           ISqlCommandExpressionProvider sqlCommandExpressionProvider)
+    {
+        _sqlDbCrudsFactory = sqlDbCrudsFactory;
+        _relationshipIdentifier = relationshipIdentifier;
+        _sqlCommandExpressionProvider = sqlCommandExpressionProvider;
+    }
 
     internal static async Task<AdoDataService> CreateInstanceAsync(IConnectionStringGetter connectionStringGetter,
-                                                                   SqlDbAddingFactory sqlDbCrudsFactory)
+                                                                   SqlDbAddingFactory sqlDbCrudsFactory,
+                                                                   IRelationshipIdentifier relationshipIdentifier,
+                                                                   ISqlCommandExpressionProvider sqlCommandExpressionProvider)
     {
-        var instance = new AdoDataService(sqlDbCrudsFactory);
+        var instance = new AdoDataService(sqlDbCrudsFactory, relationshipIdentifier, sqlCommandExpressionProvider);
         instance._connection = new SqlConnection(connectionStringGetter.GetConnectionString());
         await instance._connection.OpenAsync();
         return instance;
@@ -44,7 +47,7 @@ public class AdoDataService : IDataService, IAsyncDisposable
         {
             ObjectRelationship.Single => await selectingAlgorithms.SelectSingle(id, typeof(TEntity)) as TEntity,
             ObjectRelationship.ToAnother => await selectingAlgorithms.SelectToAnother(id, typeof(TEntity)) as TEntity,
-            ObjectRelationship.ToMany or ObjectRelationship.Composite => 
+            ObjectRelationship.ToMany or ObjectRelationship.Composite =>
                 await selectingAlgorithms.SelectComposite(id, typeof(TEntity)) as TEntity,
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -63,7 +66,7 @@ public class AdoDataService : IDataService, IAsyncDisposable
         await DeleteAsync<TEntity>(id);
         await AddAsync(newEntity);
     }
-    
+
     public async Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity : DomainModelBase
     {
         var expression = _sqlCommandExpressionProvider.SelectIdExpression(entity);

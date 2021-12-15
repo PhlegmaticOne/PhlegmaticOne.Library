@@ -2,18 +2,7 @@
 using System.Data.SqlClient;
 
 string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=LibraryDataBase;Integrated Security=True";
-//using (SqlConnection connection = new SqlConnection(connectionString))
-//{
-//    // Connect to the database then retrieve the schema information.  
-//    connection.Open();
-//    DataTable table = connection.GetSchema("Tables");
-
-//    // Display the contents of the table.  
-//    DisplayData(table);
-//    Console.WriteLine("Press any key to continue.");
-//    Console.ReadKey();
-//}
-GetDatabaseList(connectionString);
+Console.WriteLine(DateTime.Parse("01.01.2021").ToString("yyyy-MM-dd"));
 
 
 static void GetDatabaseList(string conString)

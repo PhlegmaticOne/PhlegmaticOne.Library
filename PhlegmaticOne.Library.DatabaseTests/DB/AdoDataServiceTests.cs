@@ -1,13 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.DB;
+using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.Factory;
 using PhlegmaticOne.Library.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PhlegmaticOne.Library.Database.Extensions;
+using Microsoft.VisualBasic;
 
 namespace PhlegmaticOne.Library.DatabaseTests.DB;
 
@@ -33,7 +34,8 @@ public class AdoDataServiceTests
         new() { Name = "Fantasy" },
         new() { Name = "Folklore" },
         new() { Name = "Religion" },
-        new() { Name = "Novel" }
+        new() { Name = "Novel" },
+        new() { Name = "Play" },
     };
 
     private static readonly List<State> _states = new()
@@ -126,7 +128,7 @@ public class AdoDataServiceTests
         {
             Name = "Boris",
             Surname = "Strugacky"
-        }
+        },
     };
 
     private static readonly List<Book> _books = new()
@@ -166,6 +168,12 @@ public class AdoDataServiceTests
             Name = "Roadside Picnic",
             Genre = _genres.First(r => r.Name == "Fantasy"),
             Authors = _authors.Where(a => a.Surname == "Strugacky").ToList()
+        },
+        new()
+        {
+            Name = "Martin Eden",
+            Genre = _genres.First(g => g.Name == "Romance"),
+            Authors = new List<Author>() { _authors.First(a => a.Name == "Jack") },
         },
     };
 
@@ -234,7 +242,7 @@ public class AdoDataServiceTests
     public async Task DeleteAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        var deletedCount = await context.DeleteAsync<Abonent>(2016);
+        var deletedCount = await context.DeleteAsync<Book>(1011);
         Assert.AreEqual(1, deletedCount);
     }
 
@@ -267,18 +275,24 @@ public class AdoDataServiceTests
         Assert.IsNotNull(author);
     }
     [TestMethod()]
-    public async Task AddLendingAsyncTest()
+    public async Task AddAdditionalAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        var book = await context.AddAsync(new Lending()
+        var newBook = new Book
         {
-            Abonent = _abonents.First(),
-            Book = _books[4],
-            LendingDate = DateTime.Parse("11.11.2021"),
-            IsReturned = true,
-            ReturnDate = DateTime.Parse("31.12.2021"),
-            State = _states.First()
-        });
-        Assert.IsNotNull(book);
+            Name = "The Cherry Orchard",
+            Genre = _genres.Last()
+        };
+        var newAuthor = new Author
+        {
+            Name = "Anton",
+            Surname = "Chekhov",
+            Books = new List<Book>() {newBook}
+        };
+        var bookId = await context.AddAsync(newBook);
+        var authorId = await context.AddAsync(newAuthor);
+
+        Assert.IsNotNull(bookId);
+        Assert.IsNotNull(authorId);
     }
 }

@@ -9,7 +9,8 @@ public class AbonentLendingsReportProvider : ExcelReportProviderBase<IDictionary
     private readonly DateTime _finish;
 
     protected AbonentLendingsReportProvider(string directoryPath, string fileName) :
-        base(directoryPath, fileName) { }
+        base(directoryPath, fileName)
+    { }
     public AbonentLendingsReportProvider(string directoryPath, string fileName, DateTime start, DateTime finish) :
         this(directoryPath, fileName)
     {

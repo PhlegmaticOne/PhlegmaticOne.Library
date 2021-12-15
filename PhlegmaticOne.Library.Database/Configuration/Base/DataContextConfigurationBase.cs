@@ -8,11 +8,17 @@ public abstract class DataContextConfigurationBase<TContext> where TContext : ID
     public abstract IDictionary<Type, string> TableNames { get; }
     public abstract string IdentificationPropertyName { get; }
     public abstract TableNamesConfiguringType TableNamesConfiguringType { get; }
-    public abstract string ForeignPropertyNameFor(Type propertyType);
-    public abstract Type ToManyCollectionType { get; }
-    public abstract DomainModelBase ManyToManyAddingEntity { get; }
+    public abstract Type ManyToManyCollectionType { get; }
+    public abstract Type ToToAnotherEntityType { get; }
     public abstract ManyToManyAddingType ManyToManyAddingType { get; }
     public abstract OneToManyAddingType OneToManyAddingType { get; }
+    public abstract string DateTimeFormat { get; }
+    public virtual string ToTableName(Type type) => TableNamesConfiguringType switch
+    {
+        TableNamesConfiguringType.AddSToTypeName => type.Name + "s",
+        _ => type.Name
+    };
+    public virtual string ForeignPropertyNameFor(Type propertyType) => propertyType.Name + IdentificationPropertyName;
 }
 
 public enum ManyToManyAddingType

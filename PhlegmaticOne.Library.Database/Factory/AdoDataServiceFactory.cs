@@ -2,6 +2,7 @@
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.CRUDs;
 using PhlegmaticOne.Library.Database.DB;
+using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.Relationships;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders;
 
@@ -12,16 +13,25 @@ public class AdoDataServiceFactory
     private static Task<AdoDataService>? _adoDataService;
     private static readonly object _lock = new();
     private AdoDataServiceFactory() { }
-    public static Task<AdoDataService> GetInstanceAsync(IConnectionStringGetter connectionStringGetter,
-                                                        SqlDbAddingFactory sqlDbCrudsFactory)
-    {
-        lock (_lock) return _adoDataService ??= AdoDataService.CreateInstanceAsync(connectionStringGetter, sqlDbCrudsFactory);
-    }
 
     public static Task<AdoDataService> DefaultInstanceAsync(IConnectionStringGetter connectionStringGetter)
     {
-        lock (_lock)
-            return _adoDataService ??= AdoDataService.CreateInstanceAsync(connectionStringGetter,
-                new SqlDbAddingFactory(new RelationshipIdentifier(), new SqlCommandExpressionProvider(), new AdoDataContextConfiguration()));
+        if (_adoDataService is null)
+        {
+            lock (_lock)
+            {
+                var configuration = new AdoDataContextConfiguration();
+                var relationShopResolver = new RelationshipResolver(configuration);
+                var relationShipIdentifier = new RelationshipIdentifier(configuration);
+                var sqlCommandExpressionProvider =
+                    new SqlCommandExpressionProvider(configuration, relationShopResolver);
+                var sqlAddingFactory =
+                    new SqlDbAddingFactory(relationShipIdentifier, sqlCommandExpressionProvider, configuration, relationShopResolver);
+                _adoDataService = AdoDataService
+                    .CreateInstanceAsync(connectionStringGetter, sqlAddingFactory, relationShipIdentifier,
+                        sqlCommandExpressionProvider);
+            }
+        }
+        return _adoDataService;
     }
 }

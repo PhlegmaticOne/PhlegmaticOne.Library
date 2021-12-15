@@ -18,7 +18,7 @@ public class PdfAbonentLendingsReportProvider : PdfReportProviderBase<IDictionar
         _start = start;
         _finish = finish;
     }
-    protected override Paragraph HeaderConfiguring(IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>> entity) => 
+    protected override Paragraph HeaderConfiguring(IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>> entity) =>
         new Paragraph($"Abonent lendings from {_start:dd-MM-yy} to {_finish:dd-MM-yy}")
             .SetFontSize(18).SetHorizontalAlignment(HorizontalAlignment.CENTER).SetBold();
 

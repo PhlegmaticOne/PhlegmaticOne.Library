@@ -1,10 +1,10 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using PhlegmaticOne.Library.Database.Configuration.Base;
+﻿using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace PhlegmaticOne.Library.Database.CRUDs;
 
@@ -29,7 +29,7 @@ internal class SelectingAlgorithms
     {
         var toAnotherEntity = await SelectToAnother(id, entityType);
         var toManyEntity = await SelectToMany(id, entityType, configuringEntity);
-        foreach (var relatedObjectsInCollection in _relationShipResolver.ToManyProperties(toManyEntity))
+        foreach (var relatedObjectsInCollection in _relationShipResolver.ToManyToManyProperties(toManyEntity))
         {
             relatedObjectsInCollection.SetValue(toAnotherEntity, relatedObjectsInCollection.GetValue(toManyEntity));
         }
@@ -59,12 +59,12 @@ internal class SelectingAlgorithms
     {
         var lazyEntity = await SelectSingle(id, entityType);
         var entityProperties = lazyEntity.GetType().GetProperties();
-        foreach (var property in _relationShipResolver.ToAnotherProperties(lazyEntity))
+        foreach (var property in _relationShipResolver.ToToAnotherProperties(lazyEntity))
         {
             var relatedEntitiesType = property.PropertyType;
             var relatedId = entityProperties
                 .First(p => p.Name == _configuration.ForeignPropertyNameFor(property.PropertyType)).GetValue(lazyEntity);
-            if(relatedId is null) continue;
+            if (relatedId is null) continue;
             var relatedEntity = await SelectComposite((int)relatedId, relatedEntitiesType);
             property.SetValue(lazyEntity, relatedEntity);
         }
@@ -74,18 +74,18 @@ internal class SelectingAlgorithms
     internal async Task<DomainModelBase> SelectToMany(int id, Type entityType, DomainModelBase configuringEntity = null)
     {
         var initialConfiguringEntity = Activator.CreateInstance(entityType) as DomainModelBase;
-        foreach (var foreignObjectsCollection in _relationShipResolver.ToManyProperties(initialConfiguringEntity))
+        foreach (var foreignObjectsCollection in _relationShipResolver.ToManyToManyProperties(initialConfiguringEntity))
         {
             if (_isConfiguring == false) RetrievingType = entityType;
             _isConfiguring = true;
             DomainModelBase? relatedEntity = default;
             if (RetrievingType == entityType && configuringEntity is not null)
             {
-                relatedEntity = _relationShipResolver.ToAnotherProperties(initialConfiguringEntity).Any() ?
+                relatedEntity = _relationShipResolver.ToToAnotherProperties(initialConfiguringEntity).Any() ?
                     await SelectToAnother(id, entityType) : await SelectSingle(id, entityType);
                 var foreignEntities = foreignObjectsCollection.GetValue(relatedEntity);
                 foreignEntities.GetType().GetMethod("Add")
-                    .Invoke(foreignEntities, new object?[] {configuringEntity});
+                    .Invoke(foreignEntities, new object?[] { configuringEntity });
                 return relatedEntity;
             }
             var relatedEntities = new List<DomainModelBase>();

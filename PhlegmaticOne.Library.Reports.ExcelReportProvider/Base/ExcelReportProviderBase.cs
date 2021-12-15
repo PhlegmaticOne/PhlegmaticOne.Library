@@ -45,7 +45,7 @@ public abstract class ExcelReportProviderBase<T> : IReportProvider<T>
             }
         });
     }
-    
+
     protected abstract void HeaderConfiguring(T entity);
     protected abstract void ColumnNamesConfiguring(T entity);
     protected abstract void DataFillConfiguring(T entity);

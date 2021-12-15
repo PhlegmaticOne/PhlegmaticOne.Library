@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PhlegmaticOne.Library.Database.Connection;
-using PhlegmaticOne.Library.Database.Factory;
 using PhlegmaticOne.Library.Database.Repository;
 using PhlegmaticOne.Library.Domain.Models;
+using System.Threading.Tasks;
 
 namespace PhlegmaticOne.Library.DatabaseTests.Repository;
 

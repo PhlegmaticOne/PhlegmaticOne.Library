@@ -8,7 +8,7 @@ public class SqlRepository : IRepository
 {
     private readonly IConnectionStringGetter _connectionName;
     public SqlRepository(IConnectionStringGetter connection) => _connectionName = connection;
-    public async Task<IEnumerable<TEntity>> ReadAll<TEntity>() where TEntity: DomainModelBase
+    public async Task<IEnumerable<TEntity>> ReadAll<TEntity>() where TEntity : DomainModelBase
     {
         await using var sqlService = await AdoDataServiceFactory.DefaultInstanceAsync(_connectionName);
         var ids = await sqlService.ExecuteCommand($"SELECT Id FROM {typeof(TEntity).Name}s");

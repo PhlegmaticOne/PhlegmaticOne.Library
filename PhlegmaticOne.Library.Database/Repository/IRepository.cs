@@ -4,5 +4,5 @@ namespace PhlegmaticOne.Library.Database.Repository;
 
 public interface IRepository
 {
-    Task<IEnumerable<TEntity>> ReadAll<TEntity>() where TEntity: DomainModelBase;
+    Task<IEnumerable<TEntity>> ReadAll<TEntity>() where TEntity : DomainModelBase;
 }

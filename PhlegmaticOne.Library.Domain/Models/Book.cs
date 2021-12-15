@@ -20,7 +20,7 @@ public class Book : DomainModelBase, IEquatable<Book>, IEqualityComparer<Book>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((Book) obj);
+        return Equals((Book)obj);
     }
 
     public override int GetHashCode() => HashCode.Combine(Name);
