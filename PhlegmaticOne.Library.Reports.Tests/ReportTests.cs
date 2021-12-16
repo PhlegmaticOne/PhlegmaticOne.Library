@@ -27,7 +27,7 @@ public class ReportTests
         var reportProvider =
             new FileReportProvider<IDictionary<Book, int>>
                 (_directoryPath, "book_lendings.txt", new BookLendingsReportBuilder());
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
     [TestMethod]
     public async Task FileReport_AbonentLendings_Test()
@@ -40,7 +40,7 @@ public class ReportTests
         var reportProvider =
             new FileReportProvider<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
                 (_directoryPath, "abonent_lendings.txt", new AbonentLendingsReportBuilder());
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
     [TestMethod]
     public async Task ExcelReport_BookLendings_Test()
@@ -50,7 +50,7 @@ public class ReportTests
         var entities = await libraryService.GetBookLendingsAsync();
         var reportProvider =
             new ExcelBookLendingsReportProvider(_directoryPath, "book_lendings.xlsx");
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
     [TestMethod]
     public async Task ExcelReport_AbonentLendings_Test()
@@ -62,7 +62,7 @@ public class ReportTests
         var entities = await libraryService.GetAbonentLendingsAsync(start, finish);
         var reportProvider =
             new ExcelAbonentLendingsReportProvider(_directoryPath, "abonent_lendings.xlsx", start, finish);
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
     [TestMethod]
     public async Task PdfReport_BookLendings_Test()
@@ -72,7 +72,7 @@ public class ReportTests
         var entities = await libraryService.GetBookLendingsAsync();
         var reportProvider =
             new PdfBookLendingsReportProvider(_directoryPath, "book_lendings.pdf");
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
     [TestMethod]
     public async Task PdfReport_AbonentLendings_Test()
@@ -84,7 +84,7 @@ public class ReportTests
         var entities = await libraryService.GetAbonentLendingsAsync(start, finish);
         var reportProvider =
             new PdfAbonentLendingsReportProvider(_directoryPath, "abonent_lendings.pdf", start, finish);
-        await reportProvider.BuildReport(entities);
+        await reportProvider.BuildReportAsync(entities);
     }
 
 }

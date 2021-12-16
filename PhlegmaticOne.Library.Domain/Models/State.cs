@@ -1,7 +1,12 @@
 ﻿namespace PhlegmaticOne.Library.Domain.Models;
-
+/// <summary>
+/// Represents book return state instance
+/// </summary>
 public class State : DomainModelBase, IEquatable<State>
 {
+    /// <summary>
+    /// State name
+    /// </summary>
     public string Name { get; set; }
     public override string ToString() => Name;
     public bool IsRepairNeeded() => Name switch
@@ -16,7 +21,6 @@ public class State : DomainModelBase, IEquatable<State>
         if (ReferenceEquals(this, other)) return true;
         return Name == other.Name;
     }
-
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
@@ -24,6 +28,5 @@ public class State : DomainModelBase, IEquatable<State>
         if (obj.GetType() != this.GetType()) return false;
         return Equals((State)obj);
     }
-
     public override int GetHashCode() => Name.GetHashCode();
 }

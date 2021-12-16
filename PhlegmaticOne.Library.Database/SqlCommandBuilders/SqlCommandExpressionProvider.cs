@@ -5,11 +5,18 @@ using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Database.SqlCommandBuilders;
-
+/// <summary>
+/// Represents default instance for building sql commands
+/// </summary>
 public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
 {
     private readonly DataContextConfigurationBase<AdoDataService> _configuration;
     private readonly IRelationShipResolver _relationShipResolver;
+    /// <summary>
+    /// Initializes new SqlCommandExpressionProvider instance
+    /// </summary>
+    /// <param name="configuration">Database configuration</param>
+    /// <param name="relationShipResolver">Relationship resolver for domain entities</param>
     public SqlCommandExpressionProvider(DataContextConfigurationBase<AdoDataService> configuration,
                                         IRelationShipResolver relationShipResolver)
     {
@@ -21,18 +28,7 @@ public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
     {
         if (entity is null) return null;
         var entityType = entity.GetType();
-        var properties = _relationShipResolver.ToNoRelationshipProperties(entityType.GetProperties())
-            .Where(p => p.Name.Contains(_configuration.IdPropertyName) == false)
-            .Select(p =>
-            {
-                var obj = p.GetValue(entity);
-                return obj switch
-                {
-                    string => $"{p.Name}='{obj}'",
-                    DateTime dt => $"{p.Name}='{dt.ToString(_configuration.DateTimeFormat)}'",
-                    _ => $"{p.Name}={obj}"
-                };
-            });
+        var properties = GetPropertyNamesAndValues(entityType, entity);
         return $"SELECT {_configuration.IdPropertyName} FROM {_configuration.ToTableName(entityType)} " +
                $"WHERE {string.Join(" AND ", properties)}";
     }
@@ -50,23 +46,25 @@ public class SqlCommandExpressionProvider : ISqlCommandExpressionProvider
     public string EmptySelectFor(string tableName) => $"SELECT TOP 0 * FROM {tableName}";
     public string UpdateExpression<TEntity>(int oldId, TEntity entity) where TEntity : DomainModelBase
     {
-        var newProperties =
-            _relationShipResolver.ToNoRelationshipProperties(typeof(TEntity).GetProperties())
-                .Where(p => p.Name != _configuration.IdPropertyName)
-                .Select(p =>
-                {
-                    var obj = p.GetValue(entity);
-                    return obj switch
-                    {
-                        string => $"{p.Name}='{obj}'",
-                        DateTime dt => $"{p.Name}='{dt.ToString(_configuration.DateTimeFormat)}'",
-                        _ => $"{p.Name}={obj}"
-                    };
-                });
+        var newProperties = GetPropertyNamesAndValues(typeof(TEntity), entity);
         return $"UPDATE {_configuration.ToTableName(typeof(TEntity))} SET {string.Join(", ", newProperties)} " +
                $"WHERE {_configuration.IdPropertyName}={oldId}";
     }
 
     public string DeleteFromManyToManyTableExpression(string tableName, string firstColumnName, string secondColumnName, int firstId, int secondId) =>
         $"DELETE FROM {tableName} WHERE {firstColumnName}={firstId} AND {secondColumnName}={secondId}";
+    private IEnumerable<string> GetPropertyNamesAndValues(Type entityType, DomainModelBase entity) =>
+        _relationShipResolver.ToNoRelationshipProperties(entityType.GetProperties())
+        .Where(p => p.Name.Contains(_configuration.IdPropertyName) == false)
+        .Select(p =>
+        {
+            var obj = p.GetValue(entity);
+            return obj switch
+            {
+                string => $"{p.Name}='{obj}'",
+                DateTime dt => $"{p.Name}='{dt.ToString(_configuration.DateTimeFormat)}'",
+                _ => $"{p.Name}={obj}"
+            };
+        });
+
 }

@@ -2,7 +2,9 @@
 using System.Text;
 
 namespace PhlegmaticOne.Library.Reports.FileReportProvider.Implementation;
-
+/// <summary>
+/// Represents builder for building reports from abonent lendings
+/// </summary>
 public class AbonentLendingsReportBuilder : IReportBuilder<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
 {
     public string Build(IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>> entity)

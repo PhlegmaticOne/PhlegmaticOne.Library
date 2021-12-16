@@ -1,5 +1,5 @@
 ﻿using PhlegmaticOne.Library.Database.Configuration.Base;
-using PhlegmaticOne.Library.Database.CRUDs.RelationshipAddings.Base;
+using PhlegmaticOne.Library.Database.CRUDs.RelationshipAddUpdate.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.Relationships.Base;
@@ -7,15 +7,21 @@ using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
 using System.Data.SqlClient;
 
-namespace PhlegmaticOne.Library.Database.CRUDs.RelationshipAddings;
-
-public class ToManySqLDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
+namespace PhlegmaticOne.Library.Database.CRUDs.RelationshipAddUpdate;
+/// <summary>
+/// Represent instance for adding and updating composite entities
+/// </summary>
+/// <typeparam name="TEntity"></typeparam>
+public class ToManySqLDbAdding<TEntity> : SqlDbAddUpdate<TEntity> where TEntity : DomainModelBase
 {
+    /// <summary>
+    /// Initializes new ToManySqLDbAdding instance
+    /// </summary>
     public ToManySqLDbAdding(SqlConnection connection, ISqlCommandExpressionProvider expressionProvider,
                              DataContextConfigurationBase<AdoDataService> configuration, IRelationShipResolver relationShipResolver) :
                              base(connection, expressionProvider, configuration, relationShipResolver)
     { }
-    public override async Task<int?> AddAsync(T entity)
+    public override async Task<int?> AddAsync(TEntity entity)
     {
         return Configuration.ManyToManyAddingType switch
         {
@@ -26,7 +32,13 @@ public class ToManySqLDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
             _ => throw new ArgumentException()
         };
     }
-    public async Task<int?> AddInTempTable(T entity, int? id)
+    /// <summary>
+    /// Adds entity parameters in temp many to many table
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<int?> AddInTempTable(TEntity entity, int? id)
     {
         foreach (var relatedEntitiesCollection in RelationShipResolver.ToManyToManyProperties(entity))
         {
@@ -38,7 +50,7 @@ public class ToManySqLDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
         return id;
     }
 
-    public override async Task UpdateAsync(T oldEntity, T newEntity)
+    public override async Task UpdateAsync(TEntity oldEntity, TEntity newEntity)
     {
         switch (Configuration)
         {

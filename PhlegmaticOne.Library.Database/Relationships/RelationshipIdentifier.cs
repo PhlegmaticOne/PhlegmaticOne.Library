@@ -4,12 +4,18 @@ using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Database.Relationships;
-
+/// <summary>
+/// Represents instance for identifying entities relationships
+/// </summary>
 public class RelationshipIdentifier : IRelationshipIdentifier
 {
     private readonly DataContextConfigurationBase<AdoDataService> _configuration;
-
-    public RelationshipIdentifier(DataContextConfigurationBase<AdoDataService> configuration) => _configuration = configuration;
+    /// <summary>
+    /// Initializes new RelationshipIdentifier instance
+    /// </summary>
+    /// <param name="configuration">Database configuration</param>
+    public RelationshipIdentifier(DataContextConfigurationBase<AdoDataService> configuration) =>
+        _configuration = configuration;
     public ObjectRelationship IdentifyRelationship<TEntity>() where TEntity : DomainModelBase => IdentifyRelationship(typeof(TEntity));
     public ObjectRelationship IdentifyRelationship(DomainModelBase entity) => IdentifyRelationship(entity.GetType());
     public ObjectRelationship IdentifyRelationship(Type entityType)

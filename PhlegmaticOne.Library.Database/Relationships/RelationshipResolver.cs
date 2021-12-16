@@ -6,12 +6,18 @@ using System.Collections;
 using System.Reflection;
 
 namespace PhlegmaticOne.Library.Database.Relationships;
-
+/// <summary>
+/// Represents instance for processing entities with their relationships 
+/// </summary>
 public class RelationshipResolver : IRelationShipResolver
 {
     private readonly DataContextConfigurationBase<AdoDataService> _configuration;
-    public RelationshipResolver(DataContextConfigurationBase<AdoDataService> configuration) => _configuration = configuration;
-
+    /// <summary>
+    /// Initializes new RelationshipResolver instance
+    /// </summary>
+    /// <param name="configuration">Database configuration</param>
+    public RelationshipResolver(DataContextConfigurationBase<AdoDataService> configuration) =>
+        _configuration = configuration;
     public IEnumerable<PropertyInfo> ToManyToManyProperties(DomainModelBase model) =>
         model.GetType().GetProperties()
             .Where(p => p.PropertyType.IsAssignableTo(_configuration.ManyToManyCollectionType));

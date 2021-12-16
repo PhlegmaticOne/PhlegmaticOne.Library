@@ -1,9 +1,16 @@
 ﻿using PhlegmaticOne.Library.Domain.Models;
 using Excel = Microsoft.Office.Interop.Excel;
 namespace PhlegmaticOne.Library.Reports.ExcelReportProvider;
-
+/// <summary>
+/// Represents excel report provider for book lendings 
+/// </summary>
 public class ExcelBookLendingsReportProvider : ExcelReportProviderBase<IDictionary<Book, int>>
 {
+    /// <summary>
+    /// Initializes new ExcelBookLendingsReportProvider instance
+    /// </summary>
+    /// <param name="directoryPath">Path to directory for future file</param>
+    /// <param name="fileName">Future file name</param>
     public ExcelBookLendingsReportProvider(string directoryPath, string fileName) : base(directoryPath, fileName) { }
     protected override void HeaderConfiguring(IDictionary<Book, int> entity)
     {

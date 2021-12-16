@@ -2,10 +2,16 @@
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Database.Services;
-
+/// <summary>
+/// Represents default library service
+/// </summary>
 public class LibraryService : ILibraryService
 {
     private readonly IRepository _repository;
+    /// <summary>
+    /// Initializes new LibraryService instance
+    /// </summary>
+    /// <param name="repository">Domain entities repository</param>
     public LibraryService(IRepository repository) => _repository = repository;
     public async Task<IDictionary<Book, int>> GetBookLendingsAsync()
     {

@@ -2,7 +2,9 @@
 using System.Text;
 
 namespace PhlegmaticOne.Library.Reports.FileReportProvider.Implementation;
-
+/// <summary>
+/// Represents builder for building reports from book lendings
+/// </summary>
 public class BookLendingsReportBuilder : IReportBuilder<IDictionary<Book, int>>
 {
     public string Build(IDictionary<Book, int> entity)

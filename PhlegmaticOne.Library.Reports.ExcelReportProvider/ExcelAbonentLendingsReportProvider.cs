@@ -3,6 +3,9 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace PhlegmaticOne.Library.Reports.ExcelReportProvider;
 
+/// <summary>
+/// Represents excel report provider for abonent lendings 
+/// </summary>
 public class ExcelAbonentLendingsReportProvider : ExcelReportProviderBase<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
 {
     private readonly DateTime _start;
@@ -11,6 +14,13 @@ public class ExcelAbonentLendingsReportProvider : ExcelReportProviderBase<IDicti
     protected ExcelAbonentLendingsReportProvider(string directoryPath, string fileName) :
         base(directoryPath, fileName)
     { }
+    /// <summary>
+    /// Initializes new ExcelAbonentLendingsReportProvider instance
+    /// </summary>
+    /// <param name="directoryPath">Path to directory for future file</param>
+    /// <param name="fileName">Future file name</param>
+    /// <param name="start">Start date of searched results</param>
+    /// <param name="finish">End date of searched results</param>
     public ExcelAbonentLendingsReportProvider(string directoryPath, string fileName, DateTime start, DateTime finish) :
         this(directoryPath, fileName)
     {

@@ -4,14 +4,24 @@ using iText.Layout.Properties;
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Reports.PdfReportProvider;
-
+/// <summary>
+/// Represents provider for building reports from abonent lendings
+/// </summary>
 public class PdfAbonentLendingsReportProvider : PdfReportProviderBase<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
 {
     private readonly DateTime _start;
     private readonly DateTime _finish;
+
     protected PdfAbonentLendingsReportProvider(string directoryPath, string fileName) :
         base(directoryPath, fileName)
     { }
+    /// <summary>
+    /// Initializes new PdfAbonentLendingsReportProvider instance
+    /// </summary>
+    /// <param name="directoryPath">Path to directory for future file</param>
+    /// <param name="fileName">Future file name</param>
+    /// <param name="start">Start date of searched results</param>
+    /// <param name="finish">End date of searched results</param>
     public PdfAbonentLendingsReportProvider(string directoryPath, string fileName, DateTime start, DateTime finish) :
         this(directoryPath, fileName)
     {

@@ -3,7 +3,9 @@ using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Domain.Models;
 
 namespace PhlegmaticOne.Library.Database.Configuration;
-
+/// <summary>
+/// Represents default database configuration instance
+/// </summary>
 public class AdoDataContextConfiguration : DataContextConfigurationBase<AdoDataService>
 {
     public override IDictionary<Type, string> TableNames => new Dictionary<Type, string>()
