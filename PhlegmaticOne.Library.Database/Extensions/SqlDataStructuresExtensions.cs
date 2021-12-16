@@ -13,4 +13,6 @@ public static class SqlDataStructuresExtensions
         }
         return dataRow;
     }
+    public static void AddRowWith(this DataTable table, IDictionary<string, object?> properties) =>
+        table.Rows.Add(table.NewRow().ParametrizeWith(properties));
 }

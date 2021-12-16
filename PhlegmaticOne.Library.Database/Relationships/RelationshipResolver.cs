@@ -1,10 +1,11 @@
 ﻿using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.DB;
+using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Domain.Models;
 using System.Collections;
 using System.Reflection;
 
-namespace PhlegmaticOne.Library.Database.Extensions;
+namespace PhlegmaticOne.Library.Database.Relationships;
 
 public class RelationshipResolver : IRelationShipResolver
 {

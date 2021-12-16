@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Repor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.Reports.PdfReportProvider", "PhlegmaticOne.Library.Reports.PdfReportProvider\PhlegmaticOne.Library.Reports.PdfReportProvider.csproj", "{3C507C82-6B20-468C-A5A5-2B12A0CE359B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhlegmaticOne.Library.ReportTests", "PhlegmaticOne.Library.ReportTests\PhlegmaticOne.Library.ReportTests.csproj", "{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhlegmaticOne.Library.Reports.Tests", "PhlegmaticOne.Library.Reports.Tests\PhlegmaticOne.Library.Reports.Tests.csproj", "{6604CCAD-322C-496A-A561-B641F7AA5B9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +59,10 @@ Global
 		{3C507C82-6B20-468C-A5A5-2B12A0CE359B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C507C82-6B20-468C-A5A5-2B12A0CE359B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C507C82-6B20-468C-A5A5-2B12A0CE359B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60BE7A7E-1EA9-4B44-B061-CC7B72B7EBF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6604CCAD-322C-496A-A561-B641F7AA5B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6604CCAD-322C-496A-A561-B641F7AA5B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6604CCAD-322C-496A-A561-B641F7AA5B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6604CCAD-322C-496A-A561-B641F7AA5B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

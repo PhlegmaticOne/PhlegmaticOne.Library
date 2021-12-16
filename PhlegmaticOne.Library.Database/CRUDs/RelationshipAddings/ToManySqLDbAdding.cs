@@ -2,9 +2,9 @@
 using PhlegmaticOne.Library.Database.CRUDs.RelationshipAddings.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Extensions;
+using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
-using System.Data;
 using System.Data.SqlClient;
 
 namespace PhlegmaticOne.Library.Database.CRUDs.RelationshipAddings;
@@ -30,25 +30,68 @@ public class ToManySqLDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
     {
         foreach (var relatedEntitiesCollection in RelationShipResolver.ToManyToManyProperties(entity))
         {
-            dynamic relatedObjects = relatedEntitiesCollection.GetValue(entity);
-            if(relatedObjects.Count == 0) continue;
-            var entityType = entity.GetType();
-            var tableName = Configuration.TableNames[entityType];
-            var relatedObjectsType = relatedObjects[0].GetType();
-            foreach (var relatedObject in relatedObjects)
-            {
-                var relatedObjectId = await GetIdOfExisting(relatedObject);
-                var properties = new Dictionary<string, object>()
-                {
-                    { Configuration.ForeignPropertyNameFor(entityType), id },
-                    { Configuration.ForeignPropertyNameFor(relatedObjectsType), relatedObjectId }
-                };
-                var table = SqlHelper.ToFilledDataTable(Connection, ExpressionProvider.EmptySelectFor(tableName),
-                                                        out SqlDataAdapter adapter, out DataSet dataSet);
-                table.Rows.Add(table.NewRow().ParametrizeWith(properties));
-                SqlHelper.SaveChanges(adapter, dataSet);
-            }
+            var relatedObjects = relatedEntitiesCollection.GetValue(entity) as IEnumerable<DomainModelBase>;
+            if (relatedObjects.Any() == false) continue;
+            await AddEntitiesInTempTable(relatedObjects, entity,
+                relatedEntitiesCollection.PropertyType.GenericTypeArguments[0], id.Value);
         }
         return id;
+    }
+
+    public override async Task UpdateAsync(T oldEntity, T newEntity)
+    {
+        switch (Configuration)
+        {
+            case { ManyToManyUpdatingType: ManyToManyUpdatingType.AddDeleteRelatedEntitiesWhenChanged }:
+                {
+                    foreach (var relatedEntitiesCollection in RelationShipResolver.ToManyToManyProperties(newEntity))
+                    {
+                        var newEntityRelatedEntities = relatedEntitiesCollection.GetValue(newEntity) as IEnumerable<DomainModelBase>;
+                        var oldEntityRelatedEntities = relatedEntitiesCollection.GetValue(oldEntity) as IEnumerable<DomainModelBase>;
+                        var relatedEntitiesType = relatedEntitiesCollection.PropertyType.GenericTypeArguments[0];
+                        if (newEntityRelatedEntities.Count() == oldEntityRelatedEntities.Count()) continue;
+                        if (newEntityRelatedEntities.Count() > oldEntityRelatedEntities.Count())
+                        {
+                            await AddEntitiesInTempTable(newEntityRelatedEntities.Except(oldEntityRelatedEntities),
+                                newEntity, relatedEntitiesType, newEntity.Id);
+                        }
+                        else
+                        {
+                            var entityType = newEntity.GetType();
+                            var tableName = Configuration.TableNames[entityType];
+                            foreach (var newRelatedObject in oldEntityRelatedEntities.Except(newEntityRelatedEntities))
+                            {
+                                var expression = ExpressionProvider.DeleteFromManyToManyTableExpression(tableName,
+                                    Configuration.ForeignPropertyNameFor(relatedEntitiesType),
+                                    Configuration.ForeignPropertyNameFor(entityType),
+                                    newRelatedObject.Id, oldEntity.Id);
+                                await SqlHelper.ExecuteVoidCommand(expression, Connection);
+                            }
+                        }
+                    }
+                    break;
+                }
+            default: throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task AddEntitiesInTempTable(IEnumerable<DomainModelBase> relatedProperties,
+        DomainModelBase primaryEntity, Type foreignEntityType, int id = 0)
+    {
+        var entityType = primaryEntity.GetType();
+        var tableName = Configuration.TableNames[entityType];
+        foreach (var newRelatedObject in relatedProperties)
+        {
+            var relatedObjectId = await GetIdOfExisting(newRelatedObject);
+            var properties = new Dictionary<string, object?>
+            {
+                { Configuration.ForeignPropertyNameFor(entityType), id },
+                { Configuration.ForeignPropertyNameFor(foreignEntityType), relatedObjectId }
+            };
+            var table = SqlHelper.ToFilledDataTable(Connection, ExpressionProvider.EmptySelectFor(tableName),
+                out var adapter, out var dataSet);
+            table.AddRowWith(properties);
+            SqlHelper.SaveChanges(adapter, dataSet);
+        }
     }
 }

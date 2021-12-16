@@ -15,7 +15,7 @@ public abstract class PdfReportProviderBase<T> : IReportProvider<T>
         _directoryPath = directoryPath;
         _filePath = filePath;
     }
-    public async Task SaveAsync(T entity)
+    public async Task BuildReport(T entity)
     {
         await Task.Run(() =>
         {

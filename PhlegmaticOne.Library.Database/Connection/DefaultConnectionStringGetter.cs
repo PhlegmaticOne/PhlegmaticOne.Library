@@ -13,4 +13,3 @@ public class DefaultConnectionStringGetter : IConnectionStringGetter
     }
     public string GetConnectionString() => $@"Data Source={_serverName};Initial Catalog={_dataBaseName};Integrated Security=True";
 }
-

@@ -11,11 +11,14 @@ public class AdoDataContextConfiguration : DataContextConfigurationBase<AdoDataS
         { typeof(Book), "BooksAuthors" },
         { typeof(Author), "BooksAuthors" }
     };
-    public override string IdentificationPropertyName => "Id";
+    public override string IdPropertyName => "Id";
     public override TableNamesConfiguringType TableNamesConfiguringType => TableNamesConfiguringType.AddSToTypeName;
     public override Type ManyToManyCollectionType => typeof(IEnumerable<DomainModelBase>);
     public override Type ToToAnotherEntityType => typeof(DomainModelBase);
     public override ManyToManyAddingType ManyToManyAddingType => ManyToManyAddingType.ForeignPropertiesMustExist;
     public override OneToManyAddingType OneToManyAddingType => OneToManyAddingType.ForeignPropertiesMustExist;
+    public override OneToManyUpdatingType OneToManyUpdatingType => OneToManyUpdatingType.ForeignPropertiesMustExist;
+    public override ManyToManyUpdatingType ManyToManyUpdatingType =>
+        ManyToManyUpdatingType.AddDeleteRelatedEntitiesWhenChanged;
     public override string DateTimeFormat => "yyyy-MM-dd";
 }

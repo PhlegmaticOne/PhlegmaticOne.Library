@@ -2,5 +2,5 @@
 
 public interface IReportProvider<in T>
 {
-    Task SaveAsync(T entity);
+    Task BuildReport(T entity);
 }

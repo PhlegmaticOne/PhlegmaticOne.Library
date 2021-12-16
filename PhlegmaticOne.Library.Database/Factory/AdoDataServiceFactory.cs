@@ -2,7 +2,6 @@
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.CRUDs;
 using PhlegmaticOne.Library.Database.DB;
-using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.Relationships;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders;
 

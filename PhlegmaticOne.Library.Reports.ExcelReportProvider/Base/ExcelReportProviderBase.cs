@@ -15,7 +15,7 @@ public abstract class ExcelReportProviderBase<T> : IReportProvider<T>
         _directoryPath = directoryPath;
         _fileName = fileName;
     }
-    public virtual async Task SaveAsync(T entity)
+    public virtual async Task BuildReport(T entity)
     {
         await Task.Run(() =>
         {
@@ -35,7 +35,7 @@ public abstract class ExcelReportProviderBase<T> : IReportProvider<T>
                 DataFillConfiguring(entity);
                 ActiveWorksheet.UsedRange.Columns.AutoFit();
                 Application.Application.ActiveWorkbook
-                    .SaveAs($"{_directoryPath}{_fileName}.xlsx", Type.Missing, Type.Missing, Type.Missing,
+                    .SaveAs($"{_directoryPath}{_fileName}", Type.Missing, Type.Missing, Type.Missing,
                         Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange,
                         Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
             }

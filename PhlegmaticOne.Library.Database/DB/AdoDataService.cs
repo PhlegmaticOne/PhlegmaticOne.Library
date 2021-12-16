@@ -61,18 +61,8 @@ public class AdoDataService : IDataService, IAsyncDisposable
 
     public async Task UpdateAsync<TEntity>(int id, TEntity newEntity) where TEntity : DomainModelBase
     {
-        var existing = await GetLazyAsync<TEntity>(id);
-        newEntity.Id = existing.Id;
-        await DeleteAsync<TEntity>(id);
-        await AddAsync(newEntity);
-    }
-
-    public async Task<int> GetIdOfExisting<TEntity>(TEntity entity) where TEntity : DomainModelBase
-    {
-        var expression = _sqlCommandExpressionProvider.SelectIdExpression(entity);
-        var reader = await new SqlCommand(expression, _connection).ExecuteReaderAsync();
-        await reader.ReadAsync();
-        return reader.GetInt32(0);
+        var oldEntity = await GetFullAsync<TEntity>(id);
+        await _sqlDbCrudsFactory.SqlCrudFor<TEntity>(_connection).UpdateAsync(oldEntity, newEntity);
     }
 
     public async Task<int> EnsureDeletedAsync()

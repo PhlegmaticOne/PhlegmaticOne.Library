@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace PhlegmaticOne.Library.Database.Extensions;
+namespace PhlegmaticOne.Library.Database.Relationships.Base;
 
 public interface IRelationShipResolver
 {

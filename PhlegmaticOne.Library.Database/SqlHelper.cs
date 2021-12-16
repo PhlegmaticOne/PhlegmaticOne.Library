@@ -15,7 +15,7 @@ internal static class SqlHelper
     }
     internal static DataTable ToFilledDataTable(SqlConnection connection, string expression, out SqlDataAdapter sqlAdapter, out DataSet dataSet)
     {
-        sqlAdapter = new SqlDataAdapter(expression, connection); 
+        sqlAdapter = new SqlDataAdapter(expression, connection);
         dataSet = new DataSet();
         sqlAdapter.Fill(dataSet);
         return dataSet.Tables.First();
@@ -32,5 +32,10 @@ internal static class SqlHelper
         await using var reader = await command.ExecuteReaderAsync();
         await reader.ReadAsync();
         return reader.GetInt32(0);
+    }
+    internal static async Task ExecuteVoidCommand(string? commandText, SqlConnection connection)
+    {
+        await using var command = new SqlCommand(commandText, connection);
+        await command.ExecuteNonQueryAsync();
     }
 }

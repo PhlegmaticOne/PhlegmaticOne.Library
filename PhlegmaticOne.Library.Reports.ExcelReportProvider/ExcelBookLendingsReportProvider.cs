@@ -2,9 +2,9 @@
 using Excel = Microsoft.Office.Interop.Excel;
 namespace PhlegmaticOne.Library.Reports.ExcelReportProvider;
 
-public class BookLendingsReportProvider : ExcelReportProviderBase<IDictionary<Book, int>>
+public class ExcelBookLendingsReportProvider : ExcelReportProviderBase<IDictionary<Book, int>>
 {
-    public BookLendingsReportProvider(string directoryPath, string fileName) : base(directoryPath, fileName) { }
+    public ExcelBookLendingsReportProvider(string directoryPath, string fileName) : base(directoryPath, fileName) { }
     protected override void HeaderConfiguring(IDictionary<Book, int> entity)
     {
         var header = ActiveWorksheet.Range[ActiveWorksheet.Cells[1, 1], ActiveWorksheet.Cells[1, 2]];

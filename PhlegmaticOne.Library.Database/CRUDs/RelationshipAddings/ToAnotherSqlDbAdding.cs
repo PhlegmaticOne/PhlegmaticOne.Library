@@ -2,6 +2,7 @@
 using PhlegmaticOne.Library.Database.CRUDs.RelationshipAddings.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Extensions;
+using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
 using System.Data.SqlClient;
@@ -18,7 +19,7 @@ public class ToAnotherSqlDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
     {
         return Configuration switch
         {
-            { OneToManyAddingType: OneToManyAddingType.ForeignPropertiesMustExist} =>
+            { OneToManyAddingType: OneToManyAddingType.ForeignPropertiesMustExist } =>
                 await Task.Factory.StartNew(async () =>
                 {
                     var properties = typeof(T).GetProperties();
@@ -26,7 +27,7 @@ public class ToAnotherSqlDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
                     {
                         var relatedEntityId = await GetIdOfExisting(property.GetValue(entity) as DomainModelBase);
                         properties.First(p => p.Name == Configuration.ForeignPropertyNameFor(property.PropertyType))
-                            .SetValue(entity, relatedEntityId);
+                                  .SetValue(entity, relatedEntityId);
                     }
                     return entity;
                 })
@@ -34,5 +35,25 @@ public class ToAnotherSqlDbAdding<T> : SqlDbAdding<T> where T : DomainModelBase
                 .Result,
             _ => throw new ArgumentException()
         };
+    }
+
+    public override async Task UpdateAsync(T oldEntity, T newEntity)
+    {
+        switch (Configuration)
+        {
+            case { OneToManyUpdatingType: OneToManyUpdatingType.ForeignPropertiesMustExist }:
+                {
+                    var properties = typeof(T).GetProperties();
+                    foreach (var property in RelationShipResolver.ToToAnotherProperties(newEntity))
+                    {
+                        var relatedEntityId = await GetIdOfExisting(property.GetValue(newEntity) as DomainModelBase);
+                        properties.First(p => p.Name == Configuration.ForeignPropertyNameFor(property.PropertyType))
+                            .SetValue(newEntity, relatedEntityId);
+                    }
+                    await base.UpdateAsync(oldEntity, newEntity);
+                    break;
+                }
+            default: throw new ArgumentOutOfRangeException();
+        }
     }
 }

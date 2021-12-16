@@ -10,7 +10,7 @@ public class BookLendingsReportBuilder : IReportBuilder<IDictionary<Book, int>>
         var sb = new StringBuilder();
         foreach (var info in entity)
         {
-            sb.AppendLine($"{info.Key} was lended {info.Key} times");
+            sb.AppendLine($"{info.Key} was lended {info.Value} times");
         }
         return sb.ToString();
     }

@@ -1,14 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PhlegmaticOne.Library.Database.Connection;
 using PhlegmaticOne.Library.Database.DB;
-using PhlegmaticOne.Library.Database.Extensions;
 using PhlegmaticOne.Library.Database.Factory;
 using PhlegmaticOne.Library.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic;
 
 namespace PhlegmaticOne.Library.DatabaseTests.DB;
 
@@ -250,14 +248,10 @@ public class AdoDataServiceTests
     public async Task UpdateAsyncTest()
     {
         await using var context = await AdoDataServiceFactory.DefaultInstanceAsync(_getter);
-        await context.UpdateAsync(2015, new Abonent
-        {
-            Name = "Slavyana",
-            Surname = "Leadova",
-            Patronymic = "Alexeevna",
-            BirthDate = DateTime.Parse("01.01.2001"),
-            Gender = _genders[1]
-        });
+        var book = await context.GetFullAsync<Book>(2008);
+        var author = await context.GetLazyAsync<Author>(3017);
+        book.Authors.Add(author);
+        await context.UpdateAsync(book.Id, book);
     }
 
     [TestMethod()]
@@ -283,16 +277,23 @@ public class AdoDataServiceTests
             Name = "The Cherry Orchard",
             Genre = _genres.Last()
         };
-        var newAuthor = new Author
+        var newAuthor = new Author()
         {
             Name = "Anton",
             Surname = "Chekhov",
-            Books = new List<Book>() {newBook}
+            Books = new List<Book>() { newBook }
         };
-        var bookId = await context.AddAsync(newBook);
-        var authorId = await context.AddAsync(newAuthor);
-
-        Assert.IsNotNull(bookId);
-        Assert.IsNotNull(authorId);
+        var newLending = new Lending()
+        {
+            Abonent = _abonents[3],
+            Book = newBook,
+            LendingDate = DateTime.Parse("10.10.2021"),
+            IsReturned = true,
+            State = _states[3],
+            ReturnDate = DateTime.Parse("20.10.2021")
+        };
+        await context.AddAsync(newBook);
+        await context.AddAsync(newAuthor);
+        await context.AddAsync(newLending);
     }
 }

@@ -3,15 +3,15 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace PhlegmaticOne.Library.Reports.ExcelReportProvider;
 
-public class AbonentLendingsReportProvider : ExcelReportProviderBase<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
+public class ExcelAbonentLendingsReportProvider : ExcelReportProviderBase<IDictionary<Abonent, IEnumerable<IGrouping<Genre, Book>>>>
 {
     private readonly DateTime _start;
     private readonly DateTime _finish;
 
-    protected AbonentLendingsReportProvider(string directoryPath, string fileName) :
+    protected ExcelAbonentLendingsReportProvider(string directoryPath, string fileName) :
         base(directoryPath, fileName)
     { }
-    public AbonentLendingsReportProvider(string directoryPath, string fileName, DateTime start, DateTime finish) :
+    public ExcelAbonentLendingsReportProvider(string directoryPath, string fileName, DateTime start, DateTime finish) :
         this(directoryPath, fileName)
     {
         _start = start;

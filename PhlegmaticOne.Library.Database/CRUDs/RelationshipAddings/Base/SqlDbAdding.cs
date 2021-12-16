@@ -1,6 +1,7 @@
 ﻿using PhlegmaticOne.Library.Database.Configuration.Base;
 using PhlegmaticOne.Library.Database.DB;
 using PhlegmaticOne.Library.Database.Extensions;
+using PhlegmaticOne.Library.Database.Relationships.Base;
 using PhlegmaticOne.Library.Database.SqlCommandBuilders.Base;
 using PhlegmaticOne.Library.Domain.Models;
 using System.Data;
@@ -26,21 +27,26 @@ public abstract class SqlDbAdding<TEntity> where TEntity : DomainModelBase
     public virtual async Task<int?> AddAsync(TEntity entity) =>
         await Task.Factory
             .StartNew(() => AddConfiguredEntity(entity))
-            .ContinueWith(_ => 
+            .ContinueWith(_ =>
                 SqlHelper.ExecuteReadingOneNumberCommand(ExpressionProvider.GetLastIdFor<TEntity>(), Connection)).Result;
+
+    public virtual async Task UpdateAsync(TEntity oldEntity, TEntity newEntity)
+    {
+        var oldId = oldEntity.Id;
+        var expr = ExpressionProvider.UpdateExpression(oldId, newEntity);
+        await using var command = new SqlCommand(expr, Connection);
+        await command.ExecuteNonQueryAsync();
+    }
 
     protected void AddConfiguredEntity(TEntity entity)
     {
-        var entityProperties = RelationShipResolver.ToNoRelationshipProperties(typeof(TEntity).GetProperties());
-        if (entity.Id == 0)
-        {
-            entityProperties = entityProperties.Where(p => p.Name != Configuration.IdentificationPropertyName);
-        }
-        var properties = entityProperties
-            .ToDictionary(key => key.Name, value => value.GetValue(entity));
+        var entityProperties =
+            RelationShipResolver.ToNoRelationshipProperties(typeof(TEntity).GetProperties())
+                                .Where(p => p.Name != Configuration.IdPropertyName);
+        var propertiesNamesAndValues = entityProperties.ToDictionary(key => key.Name, value => value.GetValue(entity));
         var table = SqlHelper.ToFilledDataTable(Connection, ExpressionProvider.EmptySelectFor<TEntity>(),
-            out var adapter, out var dataSet);
-        table.Rows.Add(table.NewRow().ParametrizeWith(properties));
+                                                out var adapter, out var dataSet);
+        table.AddRowWith(propertiesNamesAndValues);
         SqlHelper.SaveChanges(adapter, dataSet);
     }
     protected async Task<int?> GetIdOfExisting(DomainModelBase entity) =>
